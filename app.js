@@ -143,9 +143,10 @@ function setSyncStatus(text, isError) {
 /* =====================================================================
    화면 전환
    ===================================================================== */
-const VIEWS = ['home', 'practice', 'quiz', 'writing', 'result', 'wrong', 'stats'];
+const VIEWS = ['home', 'practice', 'examintro', 'quiz', 'writing', 'result', 'wrong', 'stats'];
 function showView(name) {
   VIEWS.forEach((v) => $('view-' + v).classList.toggle('hidden', v !== name));
+  if (name !== 'quiz') document.body.classList.remove('exam-mode'); // 시험지 테마는 퀴즈 화면에서만
   window.scrollTo(0, 0);
 }
 
@@ -198,7 +199,8 @@ function startQuiz(questions, mode) {
     mode,
     list: questions,
     i: 0,
-    answers: new Array(questions.length).fill(null), // 선택한 보기 index
+    answers: new Array(questions.length).fill(null), // 객관식: 선택한 보기 index
+    text: {},                                         // 작문: 문항 id별 작성 답안
     graded: mode === 'practice' || mode === 'wrong',  // 즉시 채점 여부
     startTime: Date.now(),
     timer: null,
@@ -207,11 +209,37 @@ function startQuiz(questions, mode) {
   showView('quiz');
 
   const isMock = mode === 'mock';
+  document.body.classList.toggle('exam-mode', isMock);
+  $('examBanner').classList.toggle('hidden', !isMock);
   $('quizTimer').classList.toggle('hidden', !isMock);
   $('quizCat').classList.toggle('hidden', isMock);
   if (isMock) startTimer();
 
   renderQuestion();
+}
+
+/* 모의고사 표지(유의사항) → 시험 시작 */
+function showExamIntro() {
+  if (!mcOnly().length) { toast('문제가 없습니다. 동기화를 먼저 해주세요.'); return; }
+  // 수험번호 자동 생성(겉보기용)
+  $('examNo').value = 'KINAT-' + String(Math.floor(1000 + Math.random() * 9000));
+  showView('examintro');
+}
+function startMockExam() {
+  // 객관식 36문항 + 작문형 전체(순서대로 뒤에 배치)
+  const mc = shuffle(mcOnly()).slice(0, 36);
+  const writing = byType('writing');
+  startQuiz(mc.concat(writing), 'mock');
+}
+
+/* 작문 답안 입력 */
+function onWriteInput() {
+  const q = quiz.list[quiz.i];
+  const val = $('writeInput').value;
+  quiz.text[q.id] = val;
+  const meta = $('writeArea').querySelector('.write-area__meta');
+  $('writeCount').textContent = val.length + '자';
+  meta.classList.toggle('over', val.length > 200);
 }
 
 function startTimer() {
@@ -230,42 +258,65 @@ function updateTimerLabel() {
 function renderQuestion() {
   const q = quiz.list[quiz.i];
   const total = quiz.list.length;
+  const isWriting = q.type !== 'mc';
 
   $('quizProgress').textContent = `${quiz.i + 1} / ${total}`;
   $('progressFill').style.width = `${((quiz.i + 1) / total) * 100}%`;
   if (quiz.mode !== 'mock') $('quizCat').textContent = q.category;
 
+  // 영역 배너(모의고사 시험지)
+  if (quiz.mode === 'mock') {
+    const mcCount = quiz.list.filter((x) => x.type === 'mc').length;
+    if (!isWriting) {
+      $('examBanner').textContent = `【객관식】  ${quiz.i + 1} / ${mcCount}`;
+    } else {
+      const wDone = quiz.list.slice(0, quiz.i + 1).filter((x) => x.type !== 'mc').length;
+      const wTotal = quiz.list.filter((x) => x.type !== 'mc').length;
+      $('examBanner').textContent = `【작문형】  ${wDone} / ${wTotal}  ·  200자 이내`;
+    }
+  }
+
   $('questionBox').innerHTML = q.q;
 
   const chosen = quiz.answers[quiz.i];
-  const showAnswer = quiz.graded && chosen !== null;
+  const showAnswer = quiz.graded && !isWriting && chosen !== null;
 
-  const cwrap = $('choices');
-  cwrap.innerHTML = '';
-  q.choices.forEach((c, idx) => {
-    const b = document.createElement('button');
-    b.className = 'choice';
-    b.innerHTML = `<span class="choice__num">${NUM[idx]}</span><span>${c}</span>`;
+  // 객관식 보기 / 작문 답안칸 토글
+  $('choices').classList.toggle('hidden', isWriting);
+  $('writeArea').classList.toggle('hidden', !isWriting);
 
-    if (chosen === idx) b.classList.add('is-selected');
-    if (showAnswer) {
-      b.disabled = true;
-      if (idx === q.answer) b.classList.add('is-correct');
-      else if (idx === chosen) b.classList.add('is-wrong');
-    }
-    b.addEventListener('click', () => onChoose(idx));
-    cwrap.appendChild(b);
-  });
-
-  // 피드백(연습 모드 즉시 채점)
-  const fb = $('feedback');
-  if (showAnswer) {
-    const ok = chosen === q.answer;
-    fb.className = 'feedback' + (ok ? '' : ' is-wrong');
-    fb.innerHTML = `<strong>${ok ? '정답입니다! ✅' : '오답입니다 ❌  정답: ' + NUM[q.answer] + ' ' + q.choices[q.answer]}</strong>${q.explanation || ''}`;
-    fb.classList.remove('hidden');
+  if (isWriting) {
+    const ta = $('writeInput');
+    ta.value = quiz.text[q.id] || '';
+    $('writeCount').textContent = ta.value.length + '자';
+    $('writeArea').querySelector('.write-area__meta').classList.toggle('over', ta.value.length > 200);
+    $('feedback').classList.add('hidden'); // 시험 중에는 도움말 숨김(채점 후 다시보기에서 제공)
   } else {
-    fb.classList.add('hidden');
+    const cwrap = $('choices');
+    cwrap.innerHTML = '';
+    q.choices.forEach((c, idx) => {
+      const b = document.createElement('button');
+      b.className = 'choice';
+      b.innerHTML = `<span class="choice__num">${NUM[idx]}</span><span>${c}</span>`;
+      if (chosen === idx) b.classList.add('is-selected');
+      if (showAnswer) {
+        b.disabled = true;
+        if (idx === q.answer) b.classList.add('is-correct');
+        else if (idx === chosen) b.classList.add('is-wrong');
+      }
+      b.addEventListener('click', () => onChoose(idx));
+      cwrap.appendChild(b);
+    });
+
+    const fb = $('feedback');
+    if (showAnswer) {
+      const ok = chosen === q.answer;
+      fb.className = 'feedback' + (ok ? '' : ' is-wrong');
+      fb.innerHTML = `<strong>${ok ? '정답입니다! ✅' : '오답입니다 ❌  정답: ' + NUM[q.answer] + ' ' + q.choices[q.answer]}</strong>${q.explanation || ''}`;
+      fb.classList.remove('hidden');
+    } else {
+      fb.classList.add('hidden');
+    }
   }
 
   // 버튼 상태
@@ -323,53 +374,58 @@ function prevQuestion() {
 function finishPractice() {
   let correct = 0;
   quiz.list.forEach((q, i) => { if (quiz.answers[i] === q.answer) correct++; });
-  renderResult(quiz.list, quiz.answers, correct, { isMock: false });
+  renderResult(quiz.list, quiz.answers, correct, { isMock: false, totalMc: quiz.list.length });
 }
 
-/* ---------- 모의고사 채점 ---------- */
+/* ---------- 모의고사 채점 (객관식만 자동 채점, 작문은 자기 점검) ---------- */
 function gradeMock() {
   if (quiz.timer) clearInterval(quiz.timer);
+  const totalMc = quiz.list.filter((q) => q.type === 'mc').length;
   let correct = 0;
   quiz.list.forEach((q, i) => {
+    if (q.type !== 'mc') return;            // 작문형은 자동채점·통계·오답에서 제외
     const ok = quiz.answers[i] === q.answer;
     if (ok) correct++;
     recordAnswer(q, ok);
     if (quiz.answers[i] === null || !ok) addWrong(q.id); else removeWrong(q.id);
   });
 
-  // 기록 저장
-  const pct = Math.floor((correct / quiz.list.length) * 100);
+  const pct = totalMc ? Math.floor((correct / totalMc) * 100) : 0;
   const hist = ls(K.history, []);
-  hist.unshift({ date: new Date().toISOString(), correct, total: quiz.list.length, pct });
+  hist.unshift({ date: new Date().toISOString(), correct, total: totalMc, pct });
   save(K.history, hist.slice(0, 30));
 
-  renderResult(quiz.list, quiz.answers, correct, { isMock: true });
+  document.body.classList.remove('exam-mode');
+  renderResult(quiz.list, quiz.answers, correct, { isMock: true, totalMc });
 }
 
 /* =====================================================================
    결과 화면
    ===================================================================== */
-function renderResult(list, answers, correct, { isMock }) {
+function renderResult(list, answers, correct, { isMock, totalMc }) {
   showView('result');
-  const total = list.length;
-  const pct = Math.floor((correct / total) * 100);
+  const denom = totalMc || list.length;
+  const pct = denom ? Math.floor((correct / denom) * 100) : 0;
+  const hasWriting = list.some((q) => q.type !== 'mc');
   $('scorePct').textContent = pct;
-  $('scoreFrac').textContent = `${total}문항 중 ${correct}문항 정답`;
+  $('scoreFrac').textContent = `객관식 ${denom}문항 중 ${correct}문항 정답`
+    + (hasWriting ? ' · 작문은 아래에서 직접 확인' : '');
 
   const passEl = $('scorePass');
   if (isMock) {
     const pass = pct >= 60;
     passEl.textContent = pass ? '합격선(60점) 통과 🎉' : '합격선(60점)까지 조금 더!';
     passEl.className = 'score-card__pass ' + (pass ? 'pass' : 'fail');
-    passEl.title = '실제 시험은 작문·구술 점수가 포함된 100점 만점 기준입니다.';
+    passEl.title = '실제 시험은 작문 10점 + 구술 25점이 포함된 100점 만점 기준입니다.';
   } else {
     passEl.textContent = '연습 모드 결과입니다.';
     passEl.className = 'score-card__pass';
   }
 
-  // 카테고리별
+  // 카테고리별 (객관식만)
   const cat = {};
   list.forEach((q, i) => {
+    if (q.type !== 'mc') return;
     cat[q.category] = cat[q.category] || { c: 0, t: 0 };
     cat[q.category].t++;
     if (answers[i] === q.answer) cat[q.category].c++;
@@ -388,19 +444,30 @@ function renderResult(list, answers, correct, { isMock }) {
   });
 
   // 문제 다시보기
+  const texts = (quiz && quiz.text) ? quiz.text : {};
   const rl = $('reviewList');
   rl.innerHTML = '';
-  list.forEach((q, i) => rl.appendChild(reviewItem(q, answers[i])));
+  list.forEach((q, i) => rl.appendChild(reviewItem(q, answers[i], texts[q.id])));
 
-  // 틀린 문제만 다시 풀기 버튼
-  const wrongQs = list.filter((q, i) => answers[i] !== q.answer);
+  // 틀린 문제만 다시 풀기 버튼(객관식)
+  const wrongQs = list.filter((q, i) => q.type === 'mc' && answers[i] !== q.answer);
   $('retryWrongBtn').classList.toggle('hidden', wrongQs.length === 0);
   $('retryWrongBtn').onclick = () => startQuiz(shuffle(wrongQs), 'practice');
 }
 
-function reviewItem(q, chosen) {
+function reviewItem(q, chosen, writeText) {
   const el = document.createElement('div');
   el.className = 'review-item';
+
+  // 작문형: 내가 쓴 답안 + 도움말
+  if (q.type !== 'mc') {
+    const ans = (writeText || '').trim().replace(/</g, '&lt;');
+    el.innerHTML = `<div class="review-item__q">✍️ ${q.q}</div>
+      <div class="review-item__write ${ans ? '' : 'empty-ans'}">${ans || '작성한 답안이 없습니다.'}</div>
+      ${q.guide ? `<div class="review-item__exp">💡 ${q.guide}</div>` : ''}`;
+    return el;
+  }
+
   let opts = '';
   q.choices.forEach((c, idx) => {
     let cls = '';
@@ -541,10 +608,7 @@ function wireEvents() {
     el.addEventListener('click', () => {
       const go = el.dataset.go;
       if (go === 'home') { showView('home'); renderHome(); }
-      else if (go === 'mock') {
-        const mc = shuffle(mcOnly()).slice(0, 36);
-        startQuiz(mc, 'mock');
-      }
+      else if (go === 'mock') { showExamIntro(); }
       else if (go === 'practice') { renderCategories(); showView('practice'); }
       else if (go === 'writing') { writingType = 'writing'; syncSeg(); renderWriting(); showView('writing'); }
       else if (go === 'wrong') { renderWrong(); showView('wrong'); }
@@ -558,6 +622,8 @@ function wireEvents() {
   $('submitBtn').addEventListener('click', () => {
     if (confirm('제출하고 채점할까요?')) gradeMock();
   });
+  $('examStartBtn').addEventListener('click', startMockExam);
+  $('writeInput').addEventListener('input', onWriteInput);
 
   // 작문/구술 탭
   $('writingSeg').querySelectorAll('.seg__btn').forEach((b) => {

@@ -70,6 +70,33 @@
       <div id="categoryList" class="cat-list"></div>
     </section>
 
+    <!-- 모의고사 표지 / 유의사항 -->
+    <section id="view-examintro" class="view hidden">
+      <div class="exam-cover">
+        <p class="exam-cover__org">사회통합프로그램 (KIIP)</p>
+        <h2 class="exam-cover__title">귀화용 종합평가</h2>
+        <p class="exam-cover__subtitle">필기시험 모의고사</p>
+        <div class="exam-cover__fields">
+          <label>성 명<input id="examName" type="text" placeholder="이름 입력" /></label>
+          <label>수험번호<input id="examNo" type="text" readonly /></label>
+        </div>
+        <div class="exam-notice">
+          <h3>유의사항</h3>
+          <ol>
+            <li>필기시험은 <b>객관식 36문항 + 작문형</b>이며, 시험 시간은 <b>60분</b>입니다.</li>
+            <li>객관식은 ①②③④ 중 하나를 고르고, 작문형은 <b>200자 이내</b>로 작성합니다.</li>
+            <li>총점 100점(객관식 65 + 작문 10 + 구술 25), <b>60점 이상이면 합격</b>입니다.</li>
+            <li>구술시험은 별도이며 ‘작문·구술 연습’에서 따로 연습할 수 있습니다.</li>
+            <li>제한시간이 끝나면 자동으로 제출·채점됩니다.</li>
+          </ol>
+        </div>
+        <div class="quiz-actions">
+          <button class="btn btn--ghost" data-go="home">취소</button>
+          <button class="btn btn--primary" id="examStartBtn">시험 시작</button>
+        </div>
+      </div>
+    </section>
+
     <!-- 퀴즈(연습/모의고사 공용) -->
     <section id="view-quiz" class="view hidden">
       <div class="quiz-top">
@@ -79,8 +106,14 @@
       </div>
       <div class="progress-bar"><div id="progressFill" class="progress-bar__fill"></div></div>
 
+      <div id="examBanner" class="exam-banner hidden"></div>
       <div id="questionBox" class="question-box"></div>
       <div id="choices" class="choices"></div>
+
+      <div id="writeArea" class="write-area hidden">
+        <textarea id="writeInput" placeholder="여기에 답안을 작성하세요 (200자 이내)"></textarea>
+        <div class="write-area__meta"><span id="writeCount">0자</span> / 200자</div>
+      </div>
 
       <div id="feedback" class="feedback hidden"></div>
 

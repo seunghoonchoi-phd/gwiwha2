@@ -226,10 +226,9 @@ function showExamIntro() {
   showView('examintro');
 }
 function startMockExam() {
-  // 객관식 36문항 + 작문형 전체(순서대로 뒤에 배치)
+  // 종합평가 한 세트: 객관식 36 → 작문형 → 구술 (순서대로 뒤에 배치)
   const mc = shuffle(mcOnly()).slice(0, 36);
-  const writing = byType('writing');
-  startQuiz(mc.concat(writing), 'mock');
+  startQuiz(mc.concat(byType('writing')).concat(byType('oral')), 'mock');
 }
 
 /* 작문 답안 입력 */
@@ -264,15 +263,16 @@ function renderQuestion() {
   $('progressFill').style.width = `${((quiz.i + 1) / total) * 100}%`;
   if (quiz.mode !== 'mock') $('quizCat').textContent = q.category;
 
-  // 영역 배너(모의고사 시험지)
+  // 영역 배너(모의고사 시험지) — 객관식 / 작문형 / 구술
   if (quiz.mode === 'mock') {
-    const mcCount = quiz.list.filter((x) => x.type === 'mc').length;
-    if (!isWriting) {
-      $('examBanner').textContent = `【객관식】  ${quiz.i + 1} / ${mcCount}`;
+    const countOf = (t) => quiz.list.filter((x) => x.type === t).length;
+    const doneOf = (t) => quiz.list.slice(0, quiz.i + 1).filter((x) => x.type === t).length;
+    if (q.type === 'mc') {
+      $('examBanner').textContent = `【객관식】  ${quiz.i + 1} / ${countOf('mc')}`;
+    } else if (q.type === 'writing') {
+      $('examBanner').textContent = `【작문형】  ${doneOf('writing')} / ${countOf('writing')}  ·  200자 이내`;
     } else {
-      const wDone = quiz.list.slice(0, quiz.i + 1).filter((x) => x.type !== 'mc').length;
-      const wTotal = quiz.list.filter((x) => x.type !== 'mc').length;
-      $('examBanner').textContent = `【작문형】  ${wDone} / ${wTotal}  ·  200자 이내`;
+      $('examBanner').textContent = `【구술】  ${doneOf('oral')} / ${countOf('oral')}  ·  소리내어 말하기`;
     }
   }
 
@@ -287,9 +287,15 @@ function renderQuestion() {
 
   if (isWriting) {
     const ta = $('writeInput');
+    const isOral = q.type === 'oral';
+    ta.placeholder = isOral
+      ? '소리내어 답해 보세요. (핵심을 메모해 두어도 됩니다 — 선택)'
+      : '여기에 답안을 작성하세요 (200자 이내)';
     ta.value = quiz.text[q.id] || '';
+    const meta = $('writeArea').querySelector('.write-area__meta');
+    meta.style.display = isOral ? 'none' : '';   // 구술은 글자수 제한 없음
     $('writeCount').textContent = ta.value.length + '자';
-    $('writeArea').querySelector('.write-area__meta').classList.toggle('over', ta.value.length > 200);
+    meta.classList.toggle('over', ta.value.length > 200);
     $('feedback').classList.add('hidden'); // 시험 중에는 도움말 숨김(채점 후 다시보기에서 제공)
   } else {
     const cwrap = $('choices');
@@ -409,7 +415,7 @@ function renderResult(list, answers, correct, { isMock, totalMc }) {
   const hasWriting = list.some((q) => q.type !== 'mc');
   $('scorePct').textContent = pct;
   $('scoreFrac').textContent = `객관식 ${denom}문항 중 ${correct}문항 정답`
-    + (hasWriting ? ' · 작문은 아래에서 직접 확인' : '');
+    + (hasWriting ? ' · 작문·구술은 아래에서 직접 확인' : '');
 
   const passEl = $('scorePass');
   if (isMock) {
@@ -459,11 +465,13 @@ function reviewItem(q, chosen, writeText) {
   const el = document.createElement('div');
   el.className = 'review-item';
 
-  // 작문형: 내가 쓴 답안 + 도움말
+  // 작문형/구술: 내가 쓴(메모한) 답안 + 도움말
   if (q.type !== 'mc') {
+    const isOral = q.type === 'oral';
     const ans = (writeText || '').trim().replace(/</g, '&lt;');
-    el.innerHTML = `<div class="review-item__q">✍️ ${q.q}</div>
-      <div class="review-item__write ${ans ? '' : 'empty-ans'}">${ans || '작성한 답안이 없습니다.'}</div>
+    const empty = isOral ? '메모한 내용이 없습니다.' : '작성한 답안이 없습니다.';
+    el.innerHTML = `<div class="review-item__q">${isOral ? '🗣️' : '✍️'} ${q.q}</div>
+      <div class="review-item__write ${ans ? '' : 'empty-ans'}">${ans || empty}</div>
       ${q.guide ? `<div class="review-item__exp">💡 ${q.guide}</div>` : ''}`;
     return el;
   }

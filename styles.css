@@ -42,7 +42,7 @@ html, body {
   color: #fff;
   box-shadow: 0 2px 8px rgba(37, 99, 235, .25);
 }
-.appbar__title { flex: 1; font-size: 1.05rem; font-weight: 700; margin: 0; }
+.appbar__title { flex: 1; min-width: 0; font-size: 1.05rem; font-weight: 700; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .appbar__home {
   background: rgba(255, 255, 255, .18);
   border: 0; color: #fff; font-size: 1.05rem;

@@ -326,12 +326,12 @@
   // 자리연습: 한 세션을 충분히 길게(~180회) — 세트 단위로 섞어 이어붙임
   function buildDrill(set) { var out = set.slice(); while (out.length < 175) out = out.concat(shuffle(set)); return out; }
   // 텍스트 모드: 음절 최소치까지 통째로 반복 (낱글자·낱말). 단문은 newState에서 여러 문장 이어붙임. 귀화작문(long)은 제외.
-  var MIN_SYL = { syllable: 110, word: 95 };
+  var MIN_SYL = { syllable: 330, word: 300 };
   function sylCount(text) { return (String(text).match(/[가-힣ㄱ-ㅎㅏ-ㅣ]/g) || []).length; }
   function expandText(text, mode) {
     var min = MIN_SYL[mode] || 0; if (!min) return text;
     var base = String(text).trim(), out = base, g = 0;
-    while (sylCount(out) < min && g++ < 20) out += ' ' + base;
+    while (sylCount(out) < min && g++ < 80) out += ' ' + base;
     return out;
   }
 

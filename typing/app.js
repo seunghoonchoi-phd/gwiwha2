@@ -246,11 +246,41 @@
     if (HG.isVowel(j)) return HG.compose([{ type: 'jamo', jamo: 'ㅇ' }, { type: 'jamo', jamo: j }]);
     return '';
   }
+  // 가장 또렷한 한국어 음성 고르기 — 신경망/네트워크 음성(특히 Chrome의 Google 음성) 우선
+  var koVoice = null;
+  function pickKoVoice() {
+    if (!('speechSynthesis' in window)) return;
+    var vs = window.speechSynthesis.getVoices() || [];
+    var ko = vs.filter(function (v) { return /^ko/i.test(v.lang || ''); });
+    if (!ko.length) { koVoice = null; return; }
+    var PREF = ['google', 'sunhi', 'sun-hi', 'seoyeon', 'yuna', 'injoon', 'jimin', 'heami', 'natural', 'neural', 'wavenet'];
+    function score(v) {
+      var n = (v.name || '').toLowerCase(), s = 0;
+      if (n.indexOf('google') > -1) s += 100;       // Chrome의 Google 한국어(신경망) = 가장 또렷
+      for (var i = 0; i < PREF.length; i++) { if (n.indexOf(PREF[i]) > -1) { s += 50; break; } }
+      if (!v.localService) s += 40;                  // 네트워크 음성이 대체로 더 명확
+      if (v.default) s += 5;
+      return s;
+    }
+    ko.sort(function (a, b) { return score(b) - score(a); });
+    koVoice = ko[0];
+  }
+  if ('speechSynthesis' in window) {
+    pickKoVoice();
+    try { window.speechSynthesis.addEventListener('voiceschanged', pickKoVoice); } catch (e) {}
+  }
   function speakJamo(j) {
     if (!soundOn || !j) return;
     if (!('speechSynthesis' in window)) return;
     var syl = jamoToSyllable(j); if (!syl) return;
-    try { window.speechSynthesis.cancel(); var u = new SpeechSynthesisUtterance(syl); u.lang = 'ko-KR'; u.rate = 0.8; window.speechSynthesis.speak(u); } catch (e) {}
+    try {
+      window.speechSynthesis.cancel();
+      if (!koVoice) pickKoVoice();
+      var u = new SpeechSynthesisUtterance(syl);
+      u.lang = 'ko-KR'; u.rate = 0.72; u.pitch = 1.0;
+      if (koVoice) u.voice = koVoice;
+      window.speechSynthesis.speak(u);
+    } catch (e) {}
   }
   function updateSoundToggle() {
     var b = $('#soundToggle'); if (!b) return;

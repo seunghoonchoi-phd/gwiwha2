@@ -6,16 +6,17 @@
 앱 소개와 문항 형식은 `README.md` 에 있다. 이 문서는 **고치고 배포하는 절차**만 다룬다.
 
 - 라이브 주소: <https://seunghoonchoi-phd.github.io/gwiwha/> (거울 저장소: <https://seunghoonchoi-phd.github.io/gwiwha2/>)
-- 문항은 `questions.json` 한 파일에 모여 있다. 화면·로직은 `index.html` · `app.js` · `styles.css`, 타자 연습 서브앱은 `typing/` 아래에 따로 있다.
+- 공개 저장소의 `questions.json` 은 빈 자리표시자다. 실제 문항은 Supabase `questions` 테이블에 있고, 로컬 비공개 백업은 `private-data/questions.backup.json` 에 둔다. `private-data/` 는 `.gitignore` 되어 있으므로 공개 저장소에 올리지 않는다.
+- 공개 홈의 영역명과 문항 수는 `question-catalog.json` 에서 읽는다. 화면·로직은 `index.html` · `app.js` · `membership.js` · `styles.css`, 타자 연습 서브앱은 `typing/` 아래에 따로 있다.
 
-## 1. 문항 고치기 — `questions.json`
+## 1. 문항 고치기 — `private-data/questions.backup.json` + Supabase
 
-- **고칠 문항을 찾는 법**: 앱 화면에서 본 문제 문장을 그대로 검색한다. 문항마다 `id`(예: `g123`, `pa-ora101`)가 있지만 앱 화면에는 보이지 않으므로, 사용자가 알려주는 것은 보통 문제 문장이다.
-  `grep -n "문제 문장 일부" questions.json`
+- **고칠 문항을 찾는 법**: 앱 화면에서 본 문제 문장을 로컬 비공개 백업에서 검색한다. 문항마다 `id`(예: `g123`, `pa-ora101`)가 있지만 앱 화면에는 보이지 않으므로, 사용자가 알려주는 것은 보통 문제 문장이다.
+  `grep -n "문제 문장 일부" private-data/questions.backup.json`
 - **부분만 고친다.** 파일 전체를 다시 써서 저장하지 않는다. 4.5MB · 59,000줄이라 전체가 다시 쓰이면 무엇이 바뀌었는지 아무도 확인할 수 없다.
 - 스크립트로 고쳐야 한다면 원본과 **바이트가 같은 형식**으로 다시 써야 한다. 검증된 방법은 두 가지뿐이다.
-  - Node: `fs.writeFileSync('questions.json', JSON.stringify(data, null, 1))`
-  - Python: `open('questions.json','w',encoding='utf-8').write(json.dumps(data, ensure_ascii=False, indent=1))`
+  - Node: `fs.writeFileSync('private-data/questions.backup.json', JSON.stringify(data, null, 1))`
+  - Python: `open('private-data/questions.backup.json','w',encoding='utf-8').write(json.dumps(data, ensure_ascii=False, indent=1))`
   - 들여쓰기는 **1칸**, 한글·중문·베트남어·태국어는 **이스케이프하지 않는다**. `ensure_ascii=True`(파이썬 기본값)로 저장하면 파일 전체가 `\uXXXX` 로 바뀌므로 절대 쓰지 않는다.
 - **네 개 언어를 함께 채운다.** 한국어(`q`, `choices`, `explanation`, `guide`, `model`)를 고쳤으면 중국어(`_zh`) · 베트남어(`_vi`) · 태국어(`_th`)도 같은 뜻으로 함께 고친다. 한국어가 원본이고, 나머지는 그 뜻을 각 언어답게 옮긴 것이다. 한 언어라도 비면 그 사용자에게는 번역이 사라진 채로 보인다.
 - `answer` 는 **0부터 센다**. `0`=①, `1`=②, `2`=③, `3`=④. 객관식 보기는 항상 4개다.
@@ -25,15 +26,16 @@
 ## 2. 커밋 전에 반드시 검사
 
 ```bash
-node tools/check-questions.mjs
+node tools/check-questions.mjs private-data/questions.backup.json
+node tools/build-public-catalog.mjs private-data/questions.backup.json question-catalog.json
+SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... node tools/import-questions-to-supabase.mjs private-data/questions.backup.json
 ```
 
-JSON 문법, 파일 형식, `id` 중복, `answer` 범위, 4개 언어 누락, 영역 이름을 한 번에 검사한다.
-통과하지 못하면 커밋하지 않는다. 되돌리려면 `git checkout -- questions.json`.
+JSON 문법, 파일 형식, `id` 중복, `answer` 범위, 4개 언어 누락, 영역 이름을 한 번에 검사한다. 통과하지 못하면 Supabase 로 가져오지 않는다.
 
 ## 3. 화면에서 확인
 
-`index.html` 은 `questions.json` 을 `fetch` 로 읽으므로 파일을 더블클릭해서 열면(`file://`) 문제가 뜨지 않는다. 로컬 서버로 연다.
+`index.html` 은 공개 목차 파일과 Supabase 를 읽으므로 파일을 더블클릭해서 열면(`file://`) 인증/동기화가 정상 동작하지 않는다. 로컬 서버로 연다.
 
 ```bash
 python -m http.server 8080
@@ -44,7 +46,7 @@ python -m http.server 8080
 ## 4. 배포 — 캐시 번호와 리모트 두 곳
 
 - 앱은 **오프라인 캐시(PWA)** 를 쓴다. `sw.js` 의 `CACHE = 'gwiwha-vNN'` 숫자를 올리지 않으면, 이미 앱을 쓰고 있는 사람의 기기에는 바뀐 내용이 내려가지 않는다.
-  - `questions.json` · `index.html` · `app.js` · `styles.css` · 아이콘 중 하나라도 고쳤으면 `sw.js` 의 숫자를 **1 올린다**.
+  - `question-catalog.json` · `index.html` · `app.js` · `membership.js` · `styles.css` · 아이콘 중 하나라도 고쳤으면 `sw.js` 의 숫자를 **1 올린다**.
   - `typing/` 안을 고쳤으면 `typing/sw.js` 의 `typing-vNN` 을 따로 올린다.
   - `AGENTS.md` · `README.md` · `tools/` 만 고쳤다면 올리지 않는다(앱 파일이 아니다).
 - 커밋 메시지는 한국어 한 줄로 쓰고, 캐시 번호를 올렸으면 끝에 표기한다.
@@ -62,6 +64,8 @@ git push gw2 main
 ## 5. 손대지 말 것
 
 - `app.js` 의 `GATE_HASH` · `GATE_ALT` 는 공유 비밀번호 잠금이다. 소유자가 명시적으로 비밀번호 교체를 지시할 때만 고치고, 그때는 두 값을 함께 바꾼다. 비밀번호 평문을 저장소 안 어떤 파일에도 적지 않는다.
+- Supabase service-role key 는 브라우저 코드, `supabase-config.js`, GitHub 저장소에 절대 넣지 않는다. `supabase-config.js` 에는 URL 과 anon/publishable key 만 넣는다.
+- `questions.json`, `typing/data.js`, Service Worker precache 에 실제 문항/모범답안을 다시 넣지 않는다.
 - `.nojekyll` 은 GitHub Pages 설정이다. 지우지 않는다.
 
 ## 6. 디자인을 건드릴 때 (Clarity)

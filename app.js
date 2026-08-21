@@ -1,7 +1,7 @@
 /* =====================================================================
    귀화시험 종합평가 연습 앱  (순수 정적 PWA · 한국어/중국어 지원)
-   - 동기화: questions.json 을 받아 localStorage 에 저장
-   - 오프라인: 마지막으로 받은 문제(캐시)로 동작
+   - 공개 화면: question-catalog.json 으로 영역과 문항 수만 표시
+   - 회원 콘텐츠: Supabase Auth + members RLS + questions RLS 로 읽기
    - 언어: 한국어(ko) / 중국어(zh). zh 모드에서는 한국어 + 중국어를 함께 표시
    ===================================================================== */
 
@@ -12,16 +12,13 @@ const K = {
   bank: 'nq_bank', meta: 'nq_meta', wrong: 'nq_wrong',
   stats: 'nq_stats', history: 'nq_history', drafts: 'nq_drafts', lang: 'nq_lang',
   mockSave: 'nq_mocksave', practiceSave: 'nq_practicesave', exam: 'nq_exam',
-  examdate: 'nq_examdate',
+  examdate: 'nq_examdate', catalog: 'nq_catalog',
 };
 
-/* ---------- 최소 내장 예비 문제 (네트워크/캐시 모두 없을 때만) ---------- */
+/* ---------- 공개 폴백(민감한 문제 본문은 넣지 않는다) ---------- */
 const FALLBACK = {
-  version: '내장본',
-  questions: [
-    { id: 'fb1', category: '사회', type: 'mc', q: '대한민국의 국기 이름은?', q_zh: '大韩民国国旗的名称是？', choices: ['일장기', '태극기', '성조기', '오성홍기'], choices_zh: ['日章旗', '太极旗', '星条旗', '五星红旗'], answer: 1, explanation: '대한민국의 국기는 태극기입니다.', explanation_zh: '韩国国旗是太极旗。' },
-    { id: 'fb2', category: '역사', type: 'mc', q: '한글을 만든 조선의 왕은?', q_zh: '创制韩文的朝鲜国王是？', choices: ['태조', '세종대왕', '정조', '영조'], choices_zh: ['太祖', '世宗大王', '正祖', '英祖'], answer: 1, explanation: '세종대왕이 훈민정음을 창제했습니다.', explanation_zh: '世宗大王创制了训民正音。' },
-  ],
+  version: 'catalog-fallback',
+  questions: [],
 };
 
 /* ---------- 다국어 사전 ---------- */
@@ -210,6 +207,103 @@ CAT_TR.vi = {"한국어": "Tiếng Hàn", "사회": "Xã hội", "문화": "Văn
 CAT_TR.th = {"한국어": "ภาษาเกาหลี", "사회": "สังคม", "문화": "วัฒนธรรม", "정치": "การเมือง", "경제": "เศรษฐกิจ", "교육": "การศึกษา", "법": "กฎหมาย", "역사": "ประวัติศาสตร์", "지리": "ภูมิศาสตร์", "작문": "การเขียน", "구술": "การพูด", "어휘": "คำศัพท์", "문법": "ไวยากรณ์", "읽기·이해": "การอ่าน·ความเข้าใจ", "대화": "บทสนทนา", "한국문화": "วัฒนธรรมเกาหลี", "한국사회": "สังคมเกาหลี"};
 T2.vi = {"귀화 종합평가": "Đánh giá tổng hợp nhập tịch", "사회통합프로그램 (KIIP)": "Chương trình Hội nhập xã hội (KIIP)", "귀화용 종합평가": "Đánh giá tổng hợp dùng cho nhập tịch", "필기시험 모의고사": "Thi thử phần thi viết", "실제 시험처럼 풀기 (객관식+작문+구술)": "Làm bài như thi thật (trắc nghiệm + viết + vấn đáp)", "9개 영역별로 풀기": "Luyện theo 9 lĩnh vực", "귀화용 종합평가는 <b>객관식 36문항(65점) + 작문형(10점) + 구술(25점) = 100점</b>, <b>60점 이상이면 합격</b>입니다.": "Đánh giá tổng hợp dùng cho nhập tịch gồm <b>trắc nghiệm 36 câu (65 điểm) + tự luận viết (10 điểm) + vấn đáp (25 điểm) = 100 điểm</b>, <b>đạt 60 điểm trở lên là đậu</b>.", "이 모의고사는 <b>필기(객관식+작문)를 60분 안에</b> 풀고, 이어서 <b>구술 문항</b>까지 연습합니다.": "Bài thi thử này làm <b>phần viết (trắc nghiệm + tự luận) trong 60 phút</b>, sau đó luyện tiếp <b>phần vấn đáp</b>.", "객관식은 ①②③④ 중 하나를 고르고, 작문은 <b>4문제가 통합된 1문제</b>를 <b>200자 원고지 1장 이내</b>로 작성합니다.": "Trắc nghiệm chọn một trong ①②③④; phần tự luận là <b>1 đề gộp từ 4 câu</b>, viết trong <b>1 tờ giấy ô 200 chữ</b>.", "객관식만 자동 채점되며, 작문·구술은 모범답안·도움말로 스스로 점검합니다.": "Chỉ trắc nghiệm được chấm tự động; phần viết · vấn đáp tự kiểm tra bằng đáp án mẫu · gợi ý.", "실제 시험의 구술은 별도 10분 세션(<b>5문항×5점</b>)입니다. 사회통합프로그램 <b>5단계 전 과정(기본+심화) 이수</b> + 합격 시 <b>귀화 면접심사가 면제</b>됩니다.": "Phần vấn đáp ở kỳ thi thật là một phiên riêng 10 phút (<b>5 câu × 5 điểm</b>). Khi <b>hoàn thành toàn bộ giai đoạn 5 (cơ bản + chuyên sâu)</b> của Chương trình Hội nhập xã hội và thi đậu, bạn <b>được miễn phỏng vấn nhập tịch</b>.", "귀화허가 신청자는 <b>신청일로부터 1년 이내 재응시 2회</b>(최초 포함 총 3회)까지 가능하며, <b>3회 모두 불합격하면 귀화신청이 불허</b>됩니다.": "Người xin phép nhập tịch có thể <b>thi lại tối đa 2 lần trong vòng 1 năm kể từ ngày nộp đơn</b> (tổng cộng 3 lần kể cả lần đầu); nếu <b>trượt cả 3 lần, đơn xin nhập tịch sẽ không được chấp thuận</b>.", "TOPIK 급수가 있으면 사전평가 없이 단계 배정이 가능합니다(<b>1급→2단계, 2급→3단계, 3급→4단계, 4급 이상→5단계</b>). 배정 단계는 <b>2년간 유효</b>하며, 사전평가에 재응시하면 이전 교육 이수 기록이 무효가 됩니다.": "Nếu có chứng chỉ TOPIK, bạn có thể được xếp giai đoạn mà không cần thi đánh giá đầu vào (<b>cấp 1→giai đoạn 2, cấp 2→giai đoạn 3, cấp 3→giai đoạn 4, cấp 4 trở lên→giai đoạn 5</b>). Giai đoạn được xếp có <b>hiệu lực 2 năm</b>; nếu thi lại đánh giá đầu vào, hồ sơ học tập trước đó sẽ bị hủy.", "영주 종합평가": "Đánh giá tổng hợp định cư", "영주용 종합평가": "Đánh giá tổng hợp dùng cho định cư", "영주용 종합평가는 <b>객관식 36문항(65점) + 작문형(10점) + 구술(25점) = 100점</b>, <b>60점 이상이면 합격</b>입니다.": "Đánh giá tổng hợp dùng cho định cư gồm <b>trắc nghiệm 36 câu (65 điểm) + tự luận viết (10 điểm) + vấn đáp (25 điểm) = 100 điểm</b>, <b>đạt 60 điểm trở lên là đậu</b>.", "응시 자격: 사회통합프로그램 <b>5단계 기본과정 수료</b>, 또는 <b>사전평가 85점 이상 득점 후 2년 이내</b>. 영주용은 <b>지필(PBT)로만</b> 시행됩니다.": "Điều kiện dự thi: <b>hoàn thành khóa cơ bản giai đoạn 5</b> của Chương trình Hội nhập xã hội, hoặc <b>trong vòng 2 năm sau khi đạt từ 85 điểm trở lên ở đánh giá đầu vào</b>. Bài thi định cư <b>chỉ thi trên giấy (PBT)</b>.", "사회통합 사전평가": "Đánh giá đầu vào Hội nhập xã hội", "사회통합프로그램 사전평가": "Đánh giá đầu vào Chương trình Hội nhập xã hội", "단계 배정 모의평가": "Đánh giá thử để xếp giai đoạn", "어휘·문법·읽기·대화·문화·사회": "Từ vựng · ngữ pháp · đọc · hội thoại · văn hóa · xã hội", "사회통합프로그램 <b>사전평가</b>는 합격·불합격 시험이 아니라, 점수에 따라 <b>0~5단계</b>를 배정하는 레벨 평가입니다.": "<b>Đánh giá đầu vào</b> của Chương trình Hội nhập xã hội không phải kỳ thi đậu · rớt, mà là bài đánh giá phân cấp để xếp <b>giai đoạn 0~5</b> theo điểm số.", "실제 시험은 <b>필기 50문항(60분, 75점)</b> + <b>구술 5문항(10분, 25점)</b> = 100점입니다. 이 모의평가는 필기(객관식+작문)를 풀고 이어서 구술을 연습합니다.": "Kỳ thi thật gồm <b>phần viết 50 câu (60 phút, 75 điểm)</b> + <b>vấn đáp 5 câu (10 phút, 25 điểm)</b> = 100 điểm. Bài đánh giá thử này làm phần viết (trắc nghiệm + tự luận) rồi luyện tiếp phần vấn đáp.", "객관식은 ①②③④ 중 하나를 고르고, 작문은 빈칸에 알맞은 표현을 짧게 씁니다.": "Trắc nghiệm chọn một trong ①②③④, phần viết điền ngắn gọn cách diễn đạt thích hợp vào chỗ trống.", "객관식만 자동 채점되어 <b>예상 배정 단계</b>를 알려줍니다. 작문·구술은 모범답안으로 스스로 점검합니다.": "Chỉ trắc nghiệm được chấm tự động và cho biết <b>giai đoạn xếp lớp dự kiến</b>. Phần viết · vấn đáp tự kiểm tra bằng đáp án mẫu.", "실제로는 <b>구술 점수가 3점 미만이면 0단계</b>로 배정됩니다. 정확한 단계는 시험 당일 점수로 정해지며, 표시되는 단계는 <b>연습용 참고치</b>입니다.": "Trên thực tế, <b>nếu điểm vấn đáp dưới 3 điểm thì xếp giai đoạn 0</b>. Giai đoạn chính xác được quyết định theo điểm trong ngày thi, giai đoạn hiển thị chỉ là <b>giá trị tham khảo khi luyện tập</b>.", "5단계 · 한국사회이해": "Giai đoạn 5 · Hiểu biết xã hội Hàn Quốc", "81~100점": "81~100 điểm", "4단계 · 중급2": "Giai đoạn 4 · Trung cấp 2", "61~80점": "61~80 điểm", "3단계 · 중급1": "Giai đoạn 3 · Trung cấp 1", "41~60점": "41~60 điểm", "2단계 · 초급2": "Giai đoạn 2 · Sơ cấp 2", "21~40점": "21~40 điểm", "1단계 · 초급1": "Giai đoạn 1 · Sơ cấp 1", "3~20점": "3~20 điểm", "0단계 · 한국어기초": "Giai đoạn 0 · Tiếng Hàn cơ bản", "구술 3점 미만": "Vấn đáp dưới 3 điểm"};
 T2.th = {"귀화 종합평가": "การประเมินรวมแปลงสัญชาติ", "사회통합프로그램 (KIIP)": "โครงการบูรณาการสังคม (KIIP)", "귀화용 종합평가": "การประเมินรวมเพื่อแปลงสัญชาติ", "필기시험 모의고사": "ข้อสอบจำลองภาคข้อเขียน", "실제 시험처럼 풀기 (객관식+작문+구술)": "ทำเหมือนสอบจริง (ปรนัย+เขียน+พูด)", "9개 영역별로 풀기": "ฝึกตาม 9 หมวด", "귀화용 종합평가는 <b>객관식 36문항(65점) + 작문형(10점) + 구술(25점) = 100점</b>, <b>60점 이상이면 합격</b>입니다.": "การประเมินรวมเพื่อแปลงสัญชาติคือ <b>ปรนัย 36 ข้อ (65 คะแนน) + เขียน (10 คะแนน) + พูด (25 คะแนน) = 100 คะแนน</b>, <b>ได้ 60 คะแนนขึ้นไปถือว่าผ่าน</b>", "이 모의고사는 <b>필기(객관식+작문)를 60분 안에</b> 풀고, 이어서 <b>구술 문항</b>까지 연습합니다.": "ข้อสอบจำลองนี้ให้ทำ <b>ภาคข้อเขียน (ปรนัย+เขียน) ภายใน 60 นาที</b> แล้วฝึก <b>ข้อสอบพูด</b> ต่อ", "객관식은 ①②③④ 중 하나를 고르고, 작문은 <b>4문제가 통합된 1문제</b>를 <b>200자 원고지 1장 이내</b>로 작성합니다.": "ปรนัยให้เลือกหนึ่งข้อจาก ①②③④ ส่วนการเขียนเป็น<b>ข้อสอบ 1 ข้อที่รวมมาจาก 4 คำถาม</b> เขียนภายใน<b>กระดาษคำตอบแบบช่อง 200 ตัวอักษร 1 แผ่น</b>", "객관식만 자동 채점되며, 작문·구술은 모범답안·도움말로 스스로 점검합니다.": "ตรวจคะแนนอัตโนมัติเฉพาะปรนัย ส่วนเขียน·พูดให้ตรวจสอบด้วยตนเองจากคำตอบตัวอย่าง·คำแนะนำ", "실제 시험의 구술은 별도 10분 세션(<b>5문항×5점</b>)입니다. 사회통합프로그램 <b>5단계 전 과정(기본+심화) 이수</b> + 합격 시 <b>귀화 면접심사가 면제</b>됩니다.": "การพูดในสอบจริงเป็นช่วงแยกต่างหาก 10 นาที (<b>5 ข้อ × 5 คะแนน</b>) เมื่อเรียนจบ<b>หลักสูตรระดับ 5 ทั้งหมด (พื้นฐาน+เชิงลึก)</b>ของโครงการบูรณาการสังคมและสอบผ่าน จะ<b>ได้รับการยกเว้นการสัมภาษณ์แปลงสัญชาติ</b>", "귀화허가 신청자는 <b>신청일로부터 1년 이내 재응시 2회</b>(최초 포함 총 3회)까지 가능하며, <b>3회 모두 불합격하면 귀화신청이 불허</b>됩니다.": "ผู้ยื่นขอแปลงสัญชาติสามารถ<b>สอบใหม่ได้ไม่เกิน 2 ครั้งภายใน 1 ปีนับจากวันยื่นคำขอ</b> (รวมครั้งแรกทั้งหมด 3 ครั้ง) หาก<b>ไม่ผ่านทั้ง 3 ครั้ง คำขอแปลงสัญชาติจะไม่ได้รับอนุมัติ</b>", "TOPIK 급수가 있으면 사전평가 없이 단계 배정이 가능합니다(<b>1급→2단계, 2급→3단계, 3급→4단계, 4급 이상→5단계</b>). 배정 단계는 <b>2년간 유효</b>하며, 사전평가에 재응시하면 이전 교육 이수 기록이 무효가 됩니다.": "หากมีระดับ TOPIK สามารถจัดระดับได้โดยไม่ต้องสอบประเมินเบื้องต้น (<b>ระดับ1→ขั้น2, ระดับ2→ขั้น3, ระดับ3→ขั้น4, ระดับ4ขึ้นไป→ขั้น5</b>) ระดับที่จัดมีผล <b>2 ปี</b> และหากสอบประเมินเบื้องต้นใหม่ ประวัติการเรียนก่อนหน้าจะถือเป็นโมฆะ", "영주 종합평가": "การประเมินรวมถิ่นที่อยู่ถาวร", "영주용 종합평가": "การประเมินรวมเพื่อถิ่นที่อยู่ถาวร", "영주용 종합평가는 <b>객관식 36문항(65점) + 작문형(10점) + 구술(25점) = 100점</b>, <b>60점 이상이면 합격</b>입니다.": "การประเมินรวมเพื่อถิ่นที่อยู่ถาวรคือ <b>ปรนัย 36 ข้อ (65 คะแนน) + เขียน (10 คะแนน) + พูด (25 คะแนน) = 100 คะแนน</b>, <b>ได้ 60 คะแนนขึ้นไปถือว่าผ่าน</b>", "응시 자격: 사회통합프로그램 <b>5단계 기본과정 수료</b>, 또는 <b>사전평가 85점 이상 득점 후 2년 이내</b>. 영주용은 <b>지필(PBT)로만</b> 시행됩니다.": "คุณสมบัติผู้สอบ: จบ<b>หลักสูตรพื้นฐานระดับ 5</b> ของโครงการบูรณาการสังคม หรืออยู่ภายใน <b>2 ปีหลังได้คะแนนประเมินเบื้องต้นตั้งแต่ 85 คะแนนขึ้นไป</b> แบบถิ่นที่อยู่ถาวรจัดสอบ <b>ด้วยกระดาษ-ปากกา (PBT) เท่านั้น</b>", "사회통합 사전평가": "การประเมินเบื้องต้นบูรณาการสังคม", "사회통합프로그램 사전평가": "การประเมินเบื้องต้นโครงการบูรณาการสังคม", "단계 배정 모의평가": "การประเมินจำลองเพื่อจัดระดับ", "어휘·문법·읽기·대화·문화·사회": "คำศัพท์·ไวยากรณ์·การอ่าน·บทสนทนา·วัฒนธรรม·สังคม", "사회통합프로그램 <b>사전평가</b>는 합격·불합격 시험이 아니라, 점수에 따라 <b>0~5단계</b>를 배정하는 레벨 평가입니다.": "<b>การประเมินเบื้องต้น</b> ของโครงการบูรณาการสังคมไม่ใช่การสอบผ่าน·ไม่ผ่าน แต่เป็นการประเมินระดับที่จัด <b>ระดับ 0~5</b> ตามคะแนน", "실제 시험은 <b>필기 50문항(60분, 75점)</b> + <b>구술 5문항(10분, 25점)</b> = 100점입니다. 이 모의평가는 필기(객관식+작문)를 풀고 이어서 구술을 연습합니다.": "สอบจริงคือ <b>ข้อเขียน 50 ข้อ (60 นาที, 75 คะแนน)</b> + <b>พูด 5 ข้อ (10 นาที, 25 คะแนน)</b> = 100 คะแนน การประเมินจำลองนี้ให้ทำภาคข้อเขียน (ปรนัย+เขียน) แล้วฝึกพูดต่อ", "객관식은 ①②③④ 중 하나를 고르고, 작문은 빈칸에 알맞은 표현을 짧게 씁니다.": "ปรนัยให้เลือกหนึ่งข้อจาก ①②③④ ส่วนการเขียนให้เติมคำที่เหมาะสมลงในช่องว่างสั้นๆ", "객관식만 자동 채점되어 <b>예상 배정 단계</b>를 알려줍니다. 작문·구술은 모범답안으로 스스로 점검합니다.": "ตรวจคะแนนอัตโนมัติเฉพาะปรนัยแล้วบอก <b>ระดับที่คาดว่าจะได้รับการจัด</b> ส่วนเขียน·พูดให้ตรวจสอบด้วยตนเองจากคำตอบตัวอย่าง", "실제로는 <b>구술 점수가 3점 미만이면 0단계</b>로 배정됩니다. 정확한 단계는 시험 당일 점수로 정해지며, 표시되는 단계는 <b>연습용 참고치</b>입니다.": "ในความเป็นจริง <b>หากคะแนนพูดต่ำกว่า 3 คะแนนจะถูกจัดเป็นระดับ 0</b> ระดับที่แน่นอนกำหนดจากคะแนนในวันสอบ ส่วนระดับที่แสดงเป็น <b>ค่าอ้างอิงสำหรับฝึกซ้อม</b>", "5단계 · 한국사회이해": "ระดับ 5 · ความเข้าใจสังคมเกาหลี", "81~100점": "81~100 คะแนน", "4단계 · 중급2": "ระดับ 4 · กลาง 2", "61~80점": "61~80 คะแนน", "3단계 · 중급1": "ระดับ 3 · กลาง 1", "41~60점": "41~60 คะแนน", "2단계 · 초급2": "ระดับ 2 · ต้น 2", "21~40점": "21~40 คะแนน", "1단계 · 초급1": "ระดับ 1 · ต้น 1", "3~20점": "3~20 คะแนน", "0단계 · 한국어기초": "ระดับ 0 · ภาษาเกาหลีพื้นฐาน", "구술 3점 미만": "พูดต่ำกว่า 3 คะแนน"};
+Object.assign(I18N.ko, {
+  'member.loginShort': '회원 로그인',
+  'member.title': '회원 전용 콘텐츠입니다.',
+  'member.desc': '회원 로그인 후 이용할 수 있습니다.',
+  'member.email': '이메일',
+  'member.send': '인증번호 받기',
+  'member.otp': '인증번호',
+  'member.login': '로그인',
+  'member.logout': '로그아웃',
+  'member.sent': '이메일로 인증번호를 보냈습니다.',
+  'member.badOtp': '인증번호가 올바르지 않습니다.',
+  'member.notMember': '등록된 회원이 아닙니다.\n결제 후 이용할 수 있습니다.',
+  'member.inactive': '현재 이용할 수 없는 계정입니다.\n관리자에게 문의해 주세요.',
+  'member.network': '네트워크 오류가 발생했습니다.\n다시 시도해 주세요.',
+  'member.config': '회원 시스템 설정이 필요합니다.',
+  'member.emailReq': '이메일을 입력해 주세요.',
+  'member.otpReq': '인증번호를 입력해 주세요.',
+  'member.loading': '회원 정보를 확인하는 중입니다.',
+  'member.ready': '회원 확인 완료',
+  'member.entryTitle': '회원 콘텐츠 로그인',
+  'member.entryDesc': '이메일 인증 후 문제풀이를 시작하세요.',
+  'sync.publicReady': '공개 목차 준비 완료 · 총 {0}문항',
+  'sync.memberReady': '회원 문제 준비 완료 · 총 {0}문항',
+});
+Object.assign(I18N.zh, {
+  'member.loginShort': '会员登录',
+  'member.title': '会员专用内容。',
+  'member.desc': '会员登录后可以使用。',
+  'member.email': '邮箱',
+  'member.send': '获取验证码',
+  'member.otp': '验证码',
+  'member.login': '登录',
+  'member.logout': '退出登录',
+  'member.sent': '验证码已发送到邮箱。',
+  'member.badOtp': '验证码不正确。',
+  'member.notMember': '不是已登记会员。\n付款后可以使用。',
+  'member.inactive': '当前账号无法使用。\n请联系管理员。',
+  'member.network': '发生网络错误。\n请重试。',
+  'member.config': '需要设置会员系统。',
+  'member.emailReq': '请输入邮箱。',
+  'member.otpReq': '请输入验证码。',
+  'member.loading': '正在确认会员信息。',
+  'member.ready': '会员确认完成',
+  'member.entryTitle': '会员内容登录',
+  'member.entryDesc': '邮箱验证后即可开始做题。',
+  'sync.publicReady': '公开目录已准备 · 共{0}题',
+  'sync.memberReady': '会员题库已准备 · 共{0}题',
+});
+Object.assign(I18N.vi, {
+  'member.loginShort': 'Đăng nhập hội viên',
+  'member.title': 'Nội dung dành cho hội viên.',
+  'member.desc': 'Vui lòng đăng nhập hội viên để sử dụng.',
+  'member.email': 'Email',
+  'member.send': 'Nhận mã xác thực',
+  'member.otp': 'Mã xác thực',
+  'member.login': 'Đăng nhập',
+  'member.logout': 'Đăng xuất',
+  'member.sent': 'Đã gửi mã xác thực qua email.',
+  'member.badOtp': 'Mã xác thực không đúng.',
+  'member.notMember': 'Bạn chưa phải hội viên đã đăng ký.\nVui lòng thanh toán để sử dụng.',
+  'member.inactive': 'Tài khoản hiện không thể sử dụng.\nVui lòng liên hệ quản trị viên.',
+  'member.network': 'Đã xảy ra lỗi mạng.\nVui lòng thử lại.',
+  'member.config': 'Cần thiết lập hệ thống hội viên.',
+  'member.emailReq': 'Vui lòng nhập email.',
+  'member.otpReq': 'Vui lòng nhập mã xác thực.',
+  'member.loading': 'Đang kiểm tra hội viên.',
+  'member.ready': 'Đã xác nhận hội viên',
+  'member.entryTitle': 'Đăng nhập nội dung hội viên',
+  'member.entryDesc': 'Xác thực email để bắt đầu luyện đề.',
+  'sync.publicReady': 'Mục lục công khai đã sẵn sàng · tổng {0} câu',
+  'sync.memberReady': 'Ngân hàng câu hỏi hội viên đã sẵn sàng · tổng {0} câu',
+});
+Object.assign(I18N.th, {
+  'member.loginShort': 'เข้าสู่ระบบสมาชิก',
+  'member.title': 'เนื้อหาสำหรับสมาชิกเท่านั้น',
+  'member.desc': 'กรุณาเข้าสู่ระบบสมาชิกก่อนใช้งาน',
+  'member.email': 'อีเมล',
+  'member.send': 'รับรหัสยืนยัน',
+  'member.otp': 'รหัสยืนยัน',
+  'member.login': 'เข้าสู่ระบบ',
+  'member.logout': 'ออกจากระบบ',
+  'member.sent': 'ส่งรหัสยืนยันไปยังอีเมลแล้ว',
+  'member.badOtp': 'รหัสยืนยันไม่ถูกต้อง',
+  'member.notMember': 'ยังไม่ใช่สมาชิกที่ลงทะเบียน\nชำระเงินแล้วจึงใช้งานได้',
+  'member.inactive': 'บัญชีนี้ไม่สามารถใช้งานได้ในขณะนี้\nกรุณาติดต่อผู้ดูแล',
+  'member.network': 'เกิดข้อผิดพลาดเครือข่าย\nกรุณาลองอีกครั้ง',
+  'member.config': 'ต้องตั้งค่าระบบสมาชิก',
+  'member.emailReq': 'กรุณากรอกอีเมล',
+  'member.otpReq': 'กรุณากรอกรหัสยืนยัน',
+  'member.loading': 'กำลังตรวจสอบสมาชิก',
+  'member.ready': 'ตรวจสอบสมาชิกเสร็จแล้ว',
+  'member.entryTitle': 'เข้าสู่ระบบเนื้อหาสมาชิก',
+  'member.entryDesc': 'ยืนยันอีเมลแล้วเริ่มฝึกทำข้อสอบได้',
+  'sync.publicReady': 'สารบัญสาธารณะพร้อมแล้ว · ทั้งหมด {0} ข้อ',
+  'sync.memberReady': 'คลังข้อสอบสมาชิกพร้อมแล้ว · ทั้งหมด {0} ข้อ',
+});
+
 function t(key) {
   let s = (I18N[LANG] && I18N[LANG][key]) || I18N.ko[key] || key;
   for (let i = 1; i < arguments.length; i++) s = s.replace('{' + (i - 1) + '}', arguments[i]);
@@ -339,6 +433,7 @@ function ekey(base) { return activeExam === 'nat' ? base : base + '__' + activeE
 
 /* ---------- 상태 ---------- */
 let BANK = [];
+let CATALOG = null;
 let META = { version: '-', syncedAt: null };
 let quiz = null;
 let writingType = 'writing';
@@ -346,6 +441,8 @@ let currentView = 'home';
 let lastResult = null;
 let mockSelfGrade = {}; // 모의고사 작문·구술 자가채점(qid → 0/0.5/1)
 let swReg = null;
+let pendingMemberAction = null;
+let memberReady = false;
 
 /* ---------- 유틸 ---------- */
 const $ = (id) => document.getElementById(id);
@@ -355,6 +452,28 @@ function save(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); 
 function shuffle(arr) { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 function toast(msg, ms = 2200) { const t0 = $('toast'); t0.textContent = msg; t0.classList.remove('hidden'); clearTimeout(toast._t); toast._t = setTimeout(() => t0.classList.add('hidden'), ms); }
 function fmtDate(iso) { if (!iso) return t('noSync'); const d = new Date(iso); const p = (n) => String(n).padStart(2, '0'); return `${d.getFullYear()}.${p(d.getMonth() + 1)}.${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`; }
+function memberStatus() { return window.GwiwhaMembership ? window.GwiwhaMembership.getStatus() : { configured: false, active: false, signedIn: false, reason: 'not_configured' }; }
+function isActiveMember() { return !!memberStatus().active; }
+function clearSensitiveLocalData() {
+  const marker = 'nq_sensitive_migrated_v1';
+  try { if (localStorage.getItem(marker) === '1') return; } catch {}
+  [K.bank, K.meta, K.mockSave, K.practiceSave].forEach((key) => {
+    try { localStorage.removeItem(key); } catch {}
+    ['__pre', '__perm'].forEach((suffix) => { try { localStorage.removeItem(key + suffix); } catch {} });
+  });
+  try { localStorage.setItem(marker, '1'); } catch {}
+}
+function clearMemberCaches() {
+  if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+    try { navigator.serviceWorker.controller.postMessage({ type: 'CLEAR_MEMBER_CACHE' }); } catch {}
+  }
+}
+function catalogExam(key = activeExam) {
+  return CATALOG && CATALOG.exams && CATALOG.exams[key] ? CATALOG.exams[key] : { total: 0, mc: 0, writing: 0, oral: 0, categories: [] };
+}
+function catalogMcCount() { return BANK.length ? mcOnly().length : catalogExam().mc; }
+function catalogTotalCount() { return BANK.length ? examBank().length : catalogExam().total; }
+function qById(id) { return BANK.find((q) => q.id === id); }
 /* 트랙별 문제 풀: 영주용(perm)도 귀화용(nat)과 같은 종합평가 풀을 쓰되,
    심화(tier:advanced) 문항은 귀화용에만 포함(영주=기본과정, 귀화=기본+심화). */
 const poolOf = (ex) => (ex === 'pre' ? 'pre' : 'nat');
@@ -367,9 +486,8 @@ const byType = (ty) => examBank().filter((q) => q.type === ty);
    공유 비밀번호 잠금
    - 링크와 비밀번호를 함께 받은 사람만 앱을 쓰게 하는 초대 장치다.
    - 한 번 맞히면 그 기기는 계속 기억한다(비밀번호를 바꾸면 모두 다시 묻는다).
-   - 이것은 암호화가 아니다. questions.json 은 공개 정적 파일이라
-     주소를 아는 사람은 파일 자체를 받을 수 있다. 목적은 앱 사용 초대이지
-     문제 보호가 아니다.
+   - 이것은 유료 콘텐츠 보호가 아니다. 홈과 공개 목차 진입만 허용한다.
+   - 실제 문제 읽기는 Supabase Auth + members + RLS 가 담당한다.
    ===================================================================== */
 const GATE_KEY = 'nq_gate';
 const GATE_HASH = '114c7254931234f33ea9796f12d2add601b4a235be570ff587826bad4915c935';
@@ -414,7 +532,8 @@ function wireGate() {
 /* =====================================================================
    초기화
    ===================================================================== */
-function init() {
+async function init() {
+  clearSensitiveLocalData();
   wireGate();
   if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
     // 새 버전 적용은 서비스워커(activate 시 창 자동 새로고침)가 담당
@@ -423,21 +542,34 @@ function init() {
   const savedLang = ls(K.lang, null);
   LANG = savedLang || 'ko';
   activeExam = ls(K.exam, 'pre');
-  loadBankFromStorageOrFallback();
+  loadCatalogFromStorage();
   applyStaticI18n();
   applyExamUi();
   wireEvents();
+  wireMemberUi();
+  renderMemberStatus();
   showView('home');
   renderHome();
   if (savedLang === null) openLangPicker();   // 첫 실행: 국가/언어(주석) 선택
-  sync({ silent: true });
+  await loadCatalog({ silent: true });
+  if (window.GwiwhaMembership) {
+    window.GwiwhaMembership.onChange(onMembershipChange);
+    window.GwiwhaMembership.init().then(async () => {
+      memberReady = true;
+      renderMemberStatus();
+      if (isActiveMember()) await ensureMemberBank({ silent: true });
+      renderHome();
+    });
+  } else {
+    memberReady = true;
+    renderMemberStatus();
+  }
 }
 
-function loadBankFromStorageOrFallback() {
-  const cached = ls(K.bank, null);
-  const meta = ls(K.meta, null);
-  if (cached && Array.isArray(cached) && cached.length) { BANK = cached; META = meta || { version: '?', syncedAt: null }; }
-  else { BANK = FALLBACK.questions; META = { version: FALLBACK.version, syncedAt: null }; }
+function loadCatalogFromStorage() {
+  const cached = ls(K.catalog, null);
+  if (cached && cached.exams) CATALOG = cached;
+  META = { version: (CATALOG && CATALOG.version) || '-', syncedAt: null };
 }
 
 /* ---------- 다국어 적용 ---------- */
@@ -493,26 +625,75 @@ function refreshView() {
 /* =====================================================================
    동기화
    ===================================================================== */
+async function loadCatalog({ silent = false } = {}) {
+  try {
+    const res = await fetch('question-catalog.json?t=' + Date.now(), { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if (!data || !data.exams) throw new Error('catalog format');
+    CATALOG = data;
+    save(K.catalog, CATALOG);
+    META = { version: CATALOG.version || '?', syncedAt: null };
+    setSyncStatus(t('sync.publicReady', catalogTotalCount()), false);
+    renderHome();
+    return CATALOG;
+  } catch (e) {
+    if (CATALOG) {
+      setSyncStatus(t('sync.publicReady', catalogTotalCount()), false);
+      return CATALOG;
+    }
+    CATALOG = {
+      version: FALLBACK.version,
+      exams: { pre: { total: 0, mc: 0, writing: 0, oral: 0, categories: [] }, perm: { total: 0, mc: 0, writing: 0, oral: 0, categories: [] }, nat: { total: 0, mc: 0, writing: 0, oral: 0, categories: [] } },
+    };
+    if (!silent) toast(t('toast.syncFail'));
+    setSyncStatus(t('sync.first'), true);
+    return CATALOG;
+  }
+}
+
+async function ensureMemberBank({ silent = false, force = false } = {}) {
+  const st = window.GwiwhaMembership ? await window.GwiwhaMembership.refreshStatus() : memberStatus();
+  if (!st.active) {
+    BANK = [];
+    if (!silent) showMemberRequired(st.reason);
+    return false;
+  }
+  if (BANK.length && !force) return true;
+  try {
+    if (!silent) toast(t('toast.syncing'));
+    const list = await window.GwiwhaMembership.fetchQuestions();
+    if (!Array.isArray(list) || !list.length) throw new Error('empty question bank');
+    BANK = list;
+    META = { version: (CATALOG && CATALOG.version) || 'Supabase', syncedAt: new Date().toISOString() };
+    setSyncStatus(t('sync.memberReady', BANK.length), false);
+    if (!silent) toast(t('toast.syncDone', BANK.length));
+    renderHome();
+    return true;
+  } catch (e) {
+    BANK = [];
+    setSyncStatus(t('sync.first'), true);
+    if (!silent) toast(t('member.network'));
+    return false;
+  }
+}
+
 async function sync({ silent = false } = {}) {
   const btn = $('syncBtn');
   btn.classList.add('is-syncing');
   if (swReg) { try { swReg.update(); } catch (e) {} } // 동기화 시 앱(서비스워커) 업데이트도 점검
-  if (!silent) toast(t('toast.syncing'));
   try {
-    const res = await fetch('questions.json?t=' + Date.now(), { cache: 'no-store' });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
-    const list = Array.isArray(data) ? data : data.questions;
-    if (!Array.isArray(list) || !list.length) throw new Error('형식 오류');
-    BANK = list;
-    META = { version: (data.version || '?'), syncedAt: new Date().toISOString() };
-    save(K.bank, BANK); save(K.meta, META);
-    setSyncStatus(t('sync.synced', BANK.length), false);
-    if (!silent) toast(t('toast.syncDone', BANK.length));
-    renderHome();
+    await loadCatalog({ silent: true });
+    if (isActiveMember()) await ensureMemberBank({ silent, force: true });
+    else {
+      BANK = [];
+      setSyncStatus(t('sync.publicReady', catalogTotalCount()), false);
+      if (!silent) toast(t('sync.publicReady', catalogTotalCount()));
+      renderHome();
+    }
   } catch (e) {
-    if (META.syncedAt) { setSyncStatus(t('sync.offline', BANK.length), true); if (!silent) toast(t('toast.offline')); }
-    else { setSyncStatus(t('sync.first'), true); if (!silent) toast(t('toast.syncFail')); }
+    setSyncStatus(t('sync.first'), true);
+    if (!silent) toast(t('toast.syncFail'));
   } finally { btn.classList.remove('is-syncing'); }
 }
 function setSyncStatus(text, isError) { const el = $('syncStatus'); el.textContent = text; el.classList.toggle('is-error', !!isError); }
@@ -534,14 +715,162 @@ function showView(name) {
 }
 
 /* =====================================================================
+   회원 로그인 / 권한
+   ===================================================================== */
+function memberReasonMessage(reason) {
+  if (reason === 'not_configured') return t('member.config');
+  if (reason === 'invalid_otp') return t('member.badOtp');
+  if (reason === 'not_member') return t('member.notMember');
+  if (reason === 'inactive') return t('member.inactive');
+  if (reason === 'email_required') return t('member.emailReq');
+  if (reason === 'otp_required') return t('member.otpReq');
+  if (reason === 'network') return t('member.network');
+  return t('member.desc');
+}
+function setMemberMessage(msg, kind) {
+  const el = $('memberMessage');
+  if (!el) return;
+  el.textContent = msg || '';
+  el.classList.toggle('is-error', kind === 'error');
+  el.classList.toggle('is-ok', kind === 'ok');
+}
+function openMemberModal(reason) {
+  const st = memberStatus();
+  const modal = $('memberModal');
+  if (!modal) return;
+  const emailInput = $('memberEmail');
+  if (emailInput && st.email) emailInput.value = st.email;
+  modal.classList.remove('hidden');
+  $('memberLogoutBtn').classList.toggle('hidden', !st.signedIn);
+  setMemberMessage(reason ? memberReasonMessage(reason) : '', reason ? 'error' : '');
+  setTimeout(() => {
+    const target = st.signedIn ? $('memberOtp') : $('memberEmail');
+    if (target) target.focus();
+  }, 60);
+}
+function closeMemberModal() {
+  const modal = $('memberModal');
+  if (modal) modal.classList.add('hidden');
+  setMemberMessage('', '');
+}
+function showMemberRequired(reason) {
+  openMemberModal(reason || memberStatus().reason || 'not_signed_in');
+}
+async function requireMembership(action) {
+  const st = window.GwiwhaMembership ? await window.GwiwhaMembership.refreshStatus() : memberStatus();
+  renderMemberStatus();
+  if (st.active) {
+    const ok = await ensureMemberBank({ silent: true });
+    if (!ok) return false;
+    if (typeof action === 'function') await action();
+    return true;
+  }
+  pendingMemberAction = action || null;
+  showMemberRequired(st.reason);
+  return false;
+}
+async function runPendingMemberAction() {
+  const action = pendingMemberAction;
+  pendingMemberAction = null;
+  if (typeof action === 'function') await action();
+}
+function onMembershipChange(st) {
+  renderMemberStatus();
+  if (!st.active) {
+    BANK = [];
+    clearMemberCaches();
+    META = { version: (CATALOG && CATALOG.version) || '-', syncedAt: null };
+    if (['quiz', 'writing', 'wrong', 'result'].includes(currentView)) {
+      quiz = null;
+      showView('home');
+      renderHome();
+    }
+  }
+}
+function renderMemberStatus() {
+  const box = $('memberStatus');
+  if (!box) return;
+  const st = memberStatus();
+  if (!st.configured) {
+    box.innerHTML = `<button type="button" class="member-chip" id="memberTopBtn">${t('member.loginShort')}</button>`;
+  } else if (st.signedIn) {
+    box.innerHTML = `<button type="button" class="member-chip" id="memberTopBtn"><span class="member-chip__email">${st.email || ''}</span><span>${t('member.logout')}</span></button>`;
+  } else {
+    box.innerHTML = `<button type="button" class="member-chip" id="memberTopBtn">${t('member.loginShort')}</button>`;
+  }
+  const btn = $('memberTopBtn');
+  if (btn) {
+    btn.addEventListener('click', async () => {
+      const cur = memberStatus();
+      if (cur.signedIn) {
+        if (window.GwiwhaMembership) await window.GwiwhaMembership.signOut();
+        BANK = [];
+        clearMemberCaches();
+        renderMemberStatus();
+        renderHome();
+      } else openMemberModal();
+    });
+  }
+}
+function wireMemberUi() {
+  const cancel = $('memberCancelBtn');
+  if (cancel) cancel.addEventListener('click', () => { pendingMemberAction = null; closeMemberModal(); });
+  const modal = $('memberModal');
+  if (modal) modal.addEventListener('click', (e) => { if (e.target === modal) { pendingMemberAction = null; closeMemberModal(); } });
+  const send = $('memberSendOtpBtn');
+  if (send) send.addEventListener('click', async () => {
+    if (!window.GwiwhaMembership) { setMemberMessage(t('member.config'), 'error'); return; }
+    send.disabled = true;
+    setMemberMessage(t('member.loading'), '');
+    const res = await window.GwiwhaMembership.sendOtp($('memberEmail').value);
+    send.disabled = false;
+    if (res.ok) {
+      $('memberEmail').value = res.email;
+      setMemberMessage(t('member.sent'), 'ok');
+      $('memberOtp').focus();
+    } else setMemberMessage(memberReasonMessage(res.reason), 'error');
+  });
+  const form = $('memberOtpForm');
+  if (form) form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!window.GwiwhaMembership) { setMemberMessage(t('member.config'), 'error'); return; }
+    $('memberVerifyBtn').disabled = true;
+    setMemberMessage(t('member.loading'), '');
+    const res = await window.GwiwhaMembership.verifyOtp($('memberEmail').value, $('memberOtp').value);
+    $('memberVerifyBtn').disabled = false;
+    renderMemberStatus();
+    if (!res.ok) {
+      const reason = res.status ? res.status.reason : res.reason;
+      setMemberMessage(memberReasonMessage(reason), 'error');
+      return;
+    }
+    const ok = await ensureMemberBank({ silent: true, force: true });
+    if (!ok) { setMemberMessage(t('member.network'), 'error'); return; }
+    setMemberMessage(t('member.ready'), 'ok');
+    closeMemberModal();
+    await runPendingMemberAction();
+  });
+  const logout = $('memberLogoutBtn');
+  if (logout) logout.addEventListener('click', async () => {
+    if (window.GwiwhaMembership) await window.GwiwhaMembership.signOut();
+    BANK = [];
+    clearMemberCaches();
+    pendingMemberAction = null;
+    closeMemberModal();
+    renderMemberStatus();
+    renderHome();
+  });
+}
+
+/* =====================================================================
    홈
    ===================================================================== */
 function renderHome() {
   $('wrongCount').textContent = t('wrongCount', wrongCount());
-  const mc = mcOnly().length;
+  const mc = catalogMcCount();
   $('bankInfo').textContent = t('bankInfo', META.version, mc, fmtDate(META.syncedAt));
-  if (META.syncedAt) setSyncStatus(t('sync.ready', examBank().length, mc), false);
-  else setSyncStatus(t('sync.never'), false);
+  if (isActiveMember() && BANK.length) setSyncStatus(t('sync.memberReady', BANK.length), false);
+  else setSyncStatus(t('sync.publicReady', catalogTotalCount()), false);
 
   renderExamDate();
 
@@ -600,16 +929,17 @@ function renderCategories() {
   else rb.classList.add('hidden');
 
   const cats = {};
-  mcOnly().forEach((q) => { cats[q.category] = (cats[q.category] || 0) + 1; });
+  if (BANK.length) mcOnly().forEach((q) => { cats[q.category] = (cats[q.category] || 0) + 1; });
+  else (catalogExam().categories || []).forEach((c) => { if (c.mc) cats[c.category] = c.mc; });
   const wrap = $('categoryList');
   wrap.innerHTML = '';
   // A5: 약점 우선 모드 — 영역별 오답률 가중 무작위 출제
-  const weakCard = catItem(t('practice.weak'), mcOnly().length, () => startQuiz(weakPriorityOrder(mcOnly()), 'practice'), t('practice.weakSub'));
+  const weakCard = catItem(t('practice.weak'), catalogMcCount(), () => startPracticeAll(true), t('practice.weakSub'));
   weakCard.classList.add('cat-item--weak');
   wrap.appendChild(weakCard);
-  wrap.appendChild(catItem(t('practice.all'), mcOnly().length, () => startQuiz(shuffle(mcOnly()), 'practice')));
+  wrap.appendChild(catItem(t('practice.all'), catalogMcCount(), () => startPracticeAll(false)));
   sortCats(Object.keys(cats)).forEach((c) => {
-    wrap.appendChild(catItem(catName(c), cats[c], () => startQuiz(shuffle(mcOnly().filter((q) => q.category === c)), 'practice')));
+    wrap.appendChild(catItem(catName(c), cats[c], () => startPracticeCategory(c)));
   });
 }
 /* 영역 카드 순서 — 문제은행에 처음 나온 순서가 아니라 교재 영역 순서로 보여 준다 */
@@ -635,9 +965,21 @@ function weakPriorityOrder(list) {
 }
 /* 통계 화면에서 "이 영역만 연습" 진입 */
 function practiceCategory(cat) {
-  const list = mcOnly().filter((q) => q.category === cat);
-  if (!list.length) { toast(t('toast.noQ')); return; }
-  startQuiz(shuffle(list), 'practice');
+  startPracticeCategory(cat);
+}
+function startPracticeAll(weak) {
+  requireMembership(() => {
+    const list = weak ? weakPriorityOrder(mcOnly()) : shuffle(mcOnly());
+    if (!list.length) { toast(t('toast.noQ')); return; }
+    startQuiz(list, 'practice');
+  });
+}
+function startPracticeCategory(cat) {
+  requireMembership(() => {
+    const list = mcOnly().filter((q) => q.category === cat);
+    if (!list.length) { toast(t('toast.noQ')); return; }
+    startQuiz(shuffle(list), 'practice');
+  });
 }
 function catItem(name, count, onClick, sub) {
   const el = document.createElement('button');
@@ -676,20 +1018,25 @@ function startQuiz(questions, mode, resume) {
 }
 
 /* ---------- 모의고사 중간 저장 / 이어풀기 ---------- */
-function getMockSave() { const s = ls(ekey(K.mockSave), null); return (s && Array.isArray(s.list) && s.list.length) ? s : null; }
+function hydrateSavedQuiz(s) {
+  if (!s || !Array.isArray(s.ids) || !s.ids.length || !BANK.length) return null;
+  const list = s.ids.map(qById).filter(Boolean);
+  return list.length === s.ids.length ? Object.assign({}, s, { list }) : null;
+}
+function getMockSave() { return hydrateSavedQuiz(ls(ekey(K.mockSave), null)); }
 function clearMockSave() { try { localStorage.removeItem(ekey(K.mockSave)); } catch {} }
 function saveMockProgress() {
   if (!quiz || quiz.mode !== 'mock') return;
-  save(ekey(K.mockSave), { list: quiz.list, i: quiz.i, answers: quiz.answers, text: quiz.text, timeLeft: quiz.timeLeft, savedAt: new Date().toISOString() });
+  save(ekey(K.mockSave), { ids: quiz.list.map((q) => q.id), i: quiz.i, answers: quiz.answers, text: quiz.text, timeLeft: quiz.timeLeft, savedAt: new Date().toISOString() });
 }
 
 /* ---------- 영역별 연습 중간 저장 / 이어풀기 ---------- */
-function getPracticeSave() { const s = ls(ekey(K.practiceSave), null); return (s && Array.isArray(s.list) && s.list.length) ? s : null; }
+function getPracticeSave() { return hydrateSavedQuiz(ls(ekey(K.practiceSave), null)); }
 function clearPracticeSave() { try { localStorage.removeItem(ekey(K.practiceSave)); } catch {} }
 function savePracticeProgress() {
   if (!quiz || quiz.mode !== 'practice') return;
   const cats = new Set(quiz.list.map((q) => q.category));
-  save(ekey(K.practiceSave), { list: quiz.list, i: quiz.i, answers: quiz.answers, label: cats.size === 1 ? [...cats][0] : null, savedAt: new Date().toISOString() });
+  save(ekey(K.practiceSave), { ids: quiz.list.map((q) => q.id), i: quiz.i, answers: quiz.answers, label: cats.size === 1 ? [...cats][0] : null, savedAt: new Date().toISOString() });
 }
 function resumePractice() {
   const s = getPracticeSave();
@@ -710,7 +1057,6 @@ function renderExamIntro() {
   if (ol) { const ns = (LANG === 'zh' && e.notices.zh) ? e.notices.zh : e.notices.ko.map(trUI); ol.innerHTML = ns.map((n) => `<li>${n}</li>`).join(''); }
 }
 function showExamIntro() {
-  if (!mcOnly().length) { toast(t('toast.noQ')); return; }
   renderExamIntro();
   $('examNo').value = exam().noPrefix + '-' + String(Math.floor(1000 + Math.random() * 9000));
   const s = getMockSave();
@@ -720,6 +1066,7 @@ function showExamIntro() {
   showView('examintro');
 }
 function startMockExam() {
+  if (!mcOnly().length) { toast(t('toast.noQ')); return; }
   if (getMockSave() && !confirm(t('confirm.discardMock'))) return;
   clearMockSave();
   const cfg = exam().mock;
@@ -1422,6 +1769,7 @@ function wireEvents() {
   $('homeBtn').addEventListener('click', () => { showView('home'); renderHome(); });
   $('syncBtn').addEventListener('click', () => sync({ silent: false }));
   $('langBtn').addEventListener('click', openLangPicker);
+  $('memberHomeBtn').addEventListener('click', () => openMemberModal());
   document.querySelectorAll('#langSplash .lang-opt').forEach((b) => b.addEventListener('click', () => chooseLang(b.dataset.lang)));
   document.querySelectorAll('#trackSeg .seg__btn').forEach((b) => b.addEventListener('click', () => setExam(b.dataset.exam)));
 
@@ -1431,9 +1779,10 @@ function wireEvents() {
       if (go === 'home') { showView('home'); renderHome(); }
       else if (go === 'mock') showExamIntro();
       else if (go === 'practice') { renderCategories(); showView('practice'); }
-      else if (go === 'writing') { writingType = 'writing'; syncSeg(); renderWriting(); showView('writing'); }
-      else if (go === 'wrong') { renderWrong(); showView('wrong'); }
+      else if (go === 'writing') requireMembership(() => { writingType = 'writing'; syncSeg(); renderWriting(); showView('writing'); });
+      else if (go === 'wrong') requireMembership(() => { renderWrong(); showView('wrong'); });
       else if (go === 'stats') { renderStats(); showView('stats'); }
+      else if (go === 'typing') requireMembership(() => { window.location.href = 'typing/'; });
     });
   });
 
@@ -1446,15 +1795,15 @@ function wireEvents() {
   $('nextBtn').addEventListener('click', nextQuestion);
   $('prevBtn').addEventListener('click', prevQuestion);
   $('submitBtn').addEventListener('click', () => { if (confirm(t('confirm.submit'))) gradeMock(); });
-  $('examStartBtn').addEventListener('click', startMockExam);
-  $('resumeBanner').addEventListener('click', resumeMock);
-  $('examResumeBtn').addEventListener('click', resumeMock);
-  $('practiceResume').addEventListener('click', resumePractice);
+  $('examStartBtn').addEventListener('click', () => requireMembership(startMockExam));
+  $('resumeBanner').addEventListener('click', () => requireMembership(resumeMock));
+  $('examResumeBtn').addEventListener('click', () => requireMembership(resumeMock));
+  $('practiceResume').addEventListener('click', () => requireMembership(resumePractice));
   $('writeInput').addEventListener('input', onWriteInput);
 
   $('writingSeg').querySelectorAll('.seg__btn').forEach((b) => { b.addEventListener('click', () => { writingType = b.dataset.wt; syncSeg(); renderWriting(); }); });
 
-  $('startWrongBtn').addEventListener('click', () => startQuiz(shuffle(wrongSolvable()), 'wrong'));
+  $('startWrongBtn').addEventListener('click', () => requireMembership(() => startQuiz(shuffle(wrongSolvable()), 'wrong')));
   $('clearWrongBtn').addEventListener('click', () => { if (confirm(t('confirm.clearWrong'))) { save(ekey(K.wrong), {}); renderWrong(); renderHome(); toast(t('toast.clearedWrong')); } });
   $('resetStatsBtn').addEventListener('click', () => { if (confirm(t('confirm.resetStats'))) { save(ekey(K.stats), { total: 0, correct: 0, cat: {} }); save(ekey(K.history), []); renderStats(); toast(t('toast.resetStats')); } });
 }

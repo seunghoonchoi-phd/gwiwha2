@@ -183,8 +183,33 @@
 
   <div id="toast" class="toast hidden"></div>
 
+  <div id="memberModal" class="member-modal hidden" role="dialog" aria-modal="true" aria-label="Member login">
+    <div class="member-modal__card">
+      <button id="memberCancelBtn" class="member-modal__close" type="button" aria-label="닫기">×</button>
+      <div class="member-modal__lock">🔒</div>
+      <h2 class="member-modal__title">회원 전용 콘텐츠입니다.</h2>
+      <p class="member-modal__desc">회원 로그인 후 이용할 수 있습니다.</p>
+      <form id="memberOtpForm" class="member-form" autocomplete="on">
+        <label class="member-form__label" for="memberEmail">이메일</label>
+        <div class="member-form__row">
+          <input id="memberEmail" class="member-form__input" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" />
+          <button id="memberSendOtpBtn" class="btn btn--primary" type="button">인증번호 받기</button>
+        </div>
+        <label class="member-form__label" for="memberOtp">인증번호</label>
+        <div class="member-form__row">
+          <input id="memberOtp" class="member-form__input" type="text" inputmode="numeric" autocomplete="one-time-code" placeholder="123456" />
+          <button id="memberVerifyBtn" class="btn btn--primary" type="submit">로그인</button>
+        </div>
+      </form>
+      <p id="memberMessage" class="member-message"></p>
+      <button id="memberLogoutBtn" class="btn btn--ghost member-logout hidden" type="button">로그아웃</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../supabase-config.js"></script>
+  <script src="../membership.js"></script>
   <script src="hangul.js"></script>
-  <script src="data.js"></script>
   <script src="app.js"></script>
   <script>
     if ('serviceWorker' in navigator) {

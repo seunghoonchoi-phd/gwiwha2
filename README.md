@@ -1,13 +1,13 @@
 # 귀화시험 종합평가 연습 앱 (KIIP 종합평가 / 귀화용)
 
-> 대한민국 **귀화용 종합평가**(사회통합프로그램 KIIP)를 무료로 연습하는 웹앱입니다.
-> 객관식 모의고사 · 영역별 연습 · 작문/구술 · 오답노트 · 학습통계를 한 곳에서. 설치 없이 브라우저에서 바로, 한 번 열면 **오프라인**으로도 풀립니다.
+> 대한민국 **귀화용 종합평가**(사회통합프로그램 KIIP)를 연습하는 회원용 웹앱입니다.
+> 공개 비밀번호로 홈과 목차를 보고, 회원은 이메일 인증번호 로그인 후 객관식 모의고사 · 영역별 연습 · 작문/구술 · 오답노트 · 학습통계를 이용합니다.
 
 ## 🔗 바로 사용하기
 
 **👉 https://seunghoonchoi-phd.github.io/gwiwha/**
 
-링크만 열면 끝입니다. 설치 파일도, 회원가입도 없습니다.
+공개 비밀번호를 입력하면 홈과 목차를 볼 수 있습니다. 실제 문제 풀이는 회원 로그인 후 이용합니다.
 
 ---
 
@@ -24,7 +24,7 @@
 - **✍️ 작문·구술 연습** — 주제별 글쓰기(200자 글자수 표시)와 말하기 연습, 도움말 제공
 - **🔁 오답 노트** — 틀린 문제 자동 저장, 다시 맞히면 사라짐
 - **📊 학습 통계** — 정답률, 영역별 성적, 모의고사 기록
-- **📴 오프라인** — 한 번 열어두면 인터넷 없이도 연습 가능 (PWA)
+- **📴 PWA** — 홈 화면에 설치 가능. 회원 문제 데이터는 Supabase 권한 확인 후 온라인에서 불러옵니다.
 
 ## 앱처럼 설치하기 (선택)
 
@@ -39,9 +39,11 @@
 
 ---
 
-## 문제 추가·수정 (직접 쓰거나 기여하기)
+## 문제 추가·수정
 
-문제은행은 `questions.json` 한 파일입니다. 형식:
+공개 저장소의 `questions.json` 은 빈 자리표시자입니다. 실제 문제은행은 Supabase `questions` 테이블에 있고, 로컬 비공개 백업은 `private-data/questions.backup.json` 로 둡니다. 이 폴더는 `.gitignore` 처리되어 GitHub Pages 에 배포되지 않습니다.
+
+문항 형식은 기존 JSON 객체를 그대로 사용합니다.
 
 ```json
 {
@@ -63,7 +65,7 @@
 - 구술 문제: `"type": "oral"`, `q`(질문) + `guide`(도움말)
 - 번역 필드는 중국어(`*_zh`)·베트남어(`*_vi`)·태국어(`*_th`)이며 선택입니다. 없으면 한국어만 보입니다.
 
-객관식만 자동 채점되며, 작문·구술은 정답 없는 자기점검용입니다. 실제 시험은 객관식+작문+구술 100점 만점, 60점 이상 합격입니다.
+수정 후에는 `node tools/check-questions.mjs private-data/questions.backup.json` 로 검사하고, `node tools/import-questions-to-supabase.mjs private-data/questions.backup.json` 로 Supabase 에 다시 가져옵니다.
 
 ## 파일 구조
 
@@ -71,8 +73,13 @@
 |---|---|
 | `index.html` | 앱 화면 |
 | `styles.css` | 디자인 |
-| `app.js` | 동기화·퀴즈·채점·통계 로직 |
-| `questions.json` | **문제은행 (여기만 고치면 됨)** |
+| `app.js` | 공개 목차·회원 로그인·퀴즈·채점·통계 로직 |
+| `membership.js` | Supabase Auth + 회원 상태 확인 |
+| `supabase-config.js` | 브라우저용 Supabase URL/anon key 설정 |
+| `question-catalog.json` | 공개 목차와 문항 수 |
+| `questions.json` | 공개 빈 자리표시자 |
+| `supabase/migrations/001_membership_and_questions.sql` | members/questions/RLS 생성 SQL |
+| `tools/import-questions-to-supabase.mjs` | 로컬 비공개题库를 Supabase 로 가져오는 스크립트 |
 | `sw.js` | 오프라인/자동 업데이트 서비스워커 |
 | `manifest.webmanifest` | 앱 설치 정보 |
 

@@ -287,18 +287,28 @@
   function transOf(d) { return { zh: d.model_zh || '', vi: d.model_vi || '', th: d.model_th || '' }; }
   function guideOf(d) { return { ko: d.guide || '', zh: d.guide_zh || '', vi: d.guide_vi || '', th: d.guide_th || '' }; }
 
-  var DATA = window.TYPING_WRITING || [];
-  var NAT = DATA.filter(function (d) { return (d.exam || 'nat') === 'nat'; });
-  var PRE = DATA.filter(function (d) { return d.exam === 'pre'; });
+  var DATA = [];
+  var NAT = [];
+  var PRE = [];
+  var SHORT_ITEMS = [];
+  var LONG_ITEMS = [];
+  var typingDataLoaded = false;
+  var pendingMemberAction = null;
 
-  var SHORT_ITEMS = CURATED_SHORT.map(function (c) { return { text: c.text, trans: c.trans, kind: 'text' }; })
-    .concat(PRE.map(function (d) {
-      return { text: (d.model || '').trim(), trans: transOf(d), topic: cleanPrompt(d.q), kind: 'text' };
-    }).filter(function (x) { return x.text; }));
-
-  var LONG_ITEMS = NAT.map(function (d) {
-    return { text: (d.model || '').trim(), trans: transOf(d), topic: topicOf(d.q), guide: guideOf(d), kind: 'text', id: d.id };
-  }).filter(function (x) { return x.text; });
+  function rebuildWritingData(data) {
+    DATA = Array.isArray(data) ? data : [];
+    NAT = DATA.filter(function (d) { return (d.exam || 'nat') === 'nat'; });
+    PRE = DATA.filter(function (d) { return d.exam === 'pre'; });
+    SHORT_ITEMS = CURATED_SHORT.map(function (c) { return { text: c.text, trans: c.trans, kind: 'text' }; })
+      .concat(PRE.map(function (d) {
+        return { text: (d.model || '').trim(), trans: transOf(d), topic: cleanPrompt(d.q), kind: 'text' };
+      }).filter(function (x) { return x.text; }));
+    LONG_ITEMS = NAT.map(function (d) {
+      return { text: (d.model || '').trim(), trans: transOf(d), topic: topicOf(d.q), guide: guideOf(d), kind: 'text', id: d.id };
+    }).filter(function (x) { return x.text; });
+    if (MODES && MODES.short) MODES.short.items = SHORT_ITEMS;
+    if (MODES && MODES.long) MODES.long.items = LONG_ITEMS;
+  }
 
   var MODES = {
     position: { kind: 'position', title: { ko: '자리 연습', zh: '指位练习', vi: 'Luyện vị trí phím', th: 'ฝึกตำแหน่งแป้น' }, desc: 'list.position', items: POSITION_STEPS },
@@ -307,6 +317,7 @@
     short: { kind: 'text', title: { ko: '단문 연습', zh: '短句练习', vi: 'Luyện câu ngắn', th: 'ฝึกประโยคสั้น' }, desc: 'list.short', items: SHORT_ITEMS },
     long: { kind: 'text', title: { ko: '귀화 작문 연습', zh: '入籍作文练习', vi: 'Luyện viết bài nhập tịch', th: 'ฝึกเขียนเรียงความแปลงสัญชาติ' }, desc: 'list.long', items: LONG_ITEMS }
   };
+  rebuildWritingData([]);
 
   // ===== 가상 키보드 레이아웃 =====
   var PUNCT = {
@@ -492,6 +503,123 @@
   function show(view) { $$('.view').forEach(function (v) { v.classList.add('hidden'); }); $('#view-' + view).classList.remove('hidden'); window.scrollTo(0, 0); }
 
   function goHome() { stopTimer(); renderHome(); show('home'); }
+
+  function memberStatus() {
+    return window.GwiwhaMembership ? window.GwiwhaMembership.getStatus() : { configured: false, signedIn: false, active: false, reason: 'not_configured' };
+  }
+  function clearMemberCaches() {
+    if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+      try { navigator.serviceWorker.controller.postMessage({ type: 'CLEAR_MEMBER_CACHE' }); } catch (e) {}
+    }
+  }
+  function memberMsg(reason) {
+    if (reason === 'not_configured') return '회원 시스템 설정이 필요합니다.';
+    if (reason === 'invalid_otp') return '인증번호가 올바르지 않습니다.';
+    if (reason === 'not_member') return '등록된 회원이 아닙니다.\n결제 후 이용할 수 있습니다.';
+    if (reason === 'inactive') return '현재 이용할 수 없는 계정입니다.\n관리자에게 문의해 주세요.';
+    if (reason === 'email_required') return '이메일을 입력해 주세요.';
+    if (reason === 'otp_required') return '인증번호를 입력해 주세요.';
+    if (reason === 'network') return '네트워크 오류가 발생했습니다.\n다시 시도해 주세요.';
+    return '회원 로그인 후 이용할 수 있습니다.';
+  }
+  function setMemberMessage(msg, kind) {
+    var el = $('#memberMessage');
+    if (!el) return;
+    el.textContent = msg || '';
+    el.classList.toggle('is-error', kind === 'error');
+    el.classList.toggle('is-ok', kind === 'ok');
+  }
+  function openMemberModal(reason) {
+    var modal = $('#memberModal');
+    if (!modal) return;
+    var st = memberStatus();
+    if (st.email) $('#memberEmail').value = st.email;
+    $('#memberLogoutBtn').classList.toggle('hidden', !st.signedIn);
+    setMemberMessage(reason ? memberMsg(reason) : '', reason ? 'error' : '');
+    modal.classList.remove('hidden');
+    setTimeout(function () { (st.signedIn ? $('#memberOtp') : $('#memberEmail')).focus(); }, 60);
+  }
+  function closeMemberModal() {
+    $('#memberModal').classList.add('hidden');
+    setMemberMessage('', '');
+  }
+  async function ensureTypingData() {
+    if (typingDataLoaded) return true;
+    if (!window.GwiwhaMembership) return false;
+    try {
+      var data = await window.GwiwhaMembership.fetchQuestions({ type: 'writing' });
+      rebuildWritingData(data);
+      typingDataLoaded = true;
+      renderHome();
+      return true;
+    } catch (e) {
+      setMemberMessage(memberMsg('network'), 'error');
+      return false;
+    }
+  }
+  async function requireMembership(action) {
+    var st = window.GwiwhaMembership ? await window.GwiwhaMembership.refreshStatus() : memberStatus();
+    if (st.active) {
+      var ok = await ensureTypingData();
+      if (ok && typeof action === 'function') action();
+      return ok;
+    }
+    pendingMemberAction = action || null;
+    openMemberModal(st.reason);
+    return false;
+  }
+  async function runPendingMemberAction() {
+    var action = pendingMemberAction;
+    pendingMemberAction = null;
+    if (typeof action === 'function') await requireMembership(action);
+  }
+  function bindMemberUi() {
+    var cancel = $('#memberCancelBtn');
+    if (cancel) cancel.addEventListener('click', function () { pendingMemberAction = null; closeMemberModal(); });
+    var modal = $('#memberModal');
+    if (modal) modal.addEventListener('click', function (e) { if (e.target === modal) { pendingMemberAction = null; closeMemberModal(); } });
+    var send = $('#memberSendOtpBtn');
+    if (send) send.addEventListener('click', async function () {
+      if (!window.GwiwhaMembership) { setMemberMessage(memberMsg('not_configured'), 'error'); return; }
+      send.disabled = true;
+      setMemberMessage('회원 정보를 확인하는 중입니다.', '');
+      var res = await window.GwiwhaMembership.sendOtp($('#memberEmail').value);
+      send.disabled = false;
+      if (res.ok) {
+        $('#memberEmail').value = res.email;
+        setMemberMessage('이메일로 인증번호를 보냈습니다.', 'ok');
+        $('#memberOtp').focus();
+      } else setMemberMessage(memberMsg(res.reason), 'error');
+    });
+    var form = $('#memberOtpForm');
+    if (form) form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      if (!window.GwiwhaMembership) { setMemberMessage(memberMsg('not_configured'), 'error'); return; }
+      $('#memberVerifyBtn').disabled = true;
+      setMemberMessage('회원 정보를 확인하는 중입니다.', '');
+      var res = await window.GwiwhaMembership.verifyOtp($('#memberEmail').value, $('#memberOtp').value);
+      $('#memberVerifyBtn').disabled = false;
+      if (!res.ok) {
+        var reason = res.status ? res.status.reason : res.reason;
+        setMemberMessage(memberMsg(reason), 'error');
+        return;
+      }
+      var ok = await ensureTypingData();
+      if (!ok) return;
+      closeMemberModal();
+      await runPendingMemberAction();
+    });
+    var logout = $('#memberLogoutBtn');
+    if (logout) logout.addEventListener('click', async function () {
+      if (window.GwiwhaMembership) await window.GwiwhaMembership.signOut();
+      clearMemberCaches();
+      typingDataLoaded = false;
+      rebuildWritingData([]);
+      pendingMemberAction = null;
+      closeMemberModal();
+      goHome();
+    });
+  }
 
   // A5: 홈 mode-card에 최고 기록 배지 / 미연습 표시
   // A2: 홈 상단 미니 요약 스트립
@@ -1300,10 +1428,15 @@
   }
 
   // ===== 딥링크 (#모드/번호) =====
-  function routeFromHash() {
+  async function routeFromHash() {
     var m = (location.hash || '').replace(/^#/, '').split('/');
     var mode = m[0], idx = parseInt(m[1], 10);
-    if (MODES[mode] && idx >= 0 && idx < MODES[mode].items.length) { startPractice(mode, idx); return true; }
+    if (MODES[mode]) {
+      await requireMembership(function () {
+        if (idx >= 0 && idx < MODES[mode].items.length) startPractice(mode, idx);
+      });
+      return true;
+    }
     return false;
   }
 
@@ -1312,7 +1445,12 @@
     $('#homeBtn').addEventListener('click', goHome);
     $('#langBtn').addEventListener('click', openPicker);
     $('#langPicker').addEventListener('click', function (e) { if (e.target === this) closePicker(); });
-    $$('.mode-card').forEach(function (c) { c.addEventListener('click', function () { goList(c.dataset.mode); }); });
+    $$('.mode-card').forEach(function (c) {
+      c.addEventListener('click', function () {
+        var mode = c.dataset.mode;
+        requireMembership(function () { goList(mode); });
+      });
+    });
     $$('[data-go]').forEach(function (b) { b.addEventListener('click', function () { if (b.dataset.go === 'home') goHome(); }); });
     $('#pracBack').addEventListener('click', function () { stopTimer(); goList(state.baseMode || state.mode); });
     var stog = $('#soundToggle'); if (stog) stog.addEventListener('click', toggleSound);
@@ -1323,9 +1461,11 @@
   function init() {
     buildKeyboard();
     applyI18n();
+    bindMemberUi();
     bind();
     renderHome();
     show('home');
+    if (window.GwiwhaMembership) window.GwiwhaMembership.init().then(function () {});
     var routed = location.hash ? routeFromHash() : false;
     if (!routed) maybeShowOnboarding(); // 딥링크 진입 시엔 온보딩 생략
   }

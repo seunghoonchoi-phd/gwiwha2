@@ -1,11 +1,12 @@
-/* questions.json 검사기 · questions.json 检查器
-   사용법 / 用法:  node tools/check-questions.mjs
+/* Supabase import source checker · Supabase 导入源检查器
+   사용법 / 用法:  node tools/check-questions.mjs [private-data/questions.backup.json]
    문항을 고친 뒤 커밋 전에 반드시 한 번 돌린다.
    改完题目、提交之前必须先跑一次。 */
 
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 
-const FILE = 'questions.json';
+const DEFAULT_PRIVATE = 'private-data/questions.backup.json';
+const FILE = process.argv[2] || (existsSync(DEFAULT_PRIVATE) ? DEFAULT_PRIVATE : 'questions.json');
 const LANGS = ['zh', 'vi', 'th'];
 const TYPES = ['mc', 'writing', 'oral'];
 const CATEGORIES = [
@@ -52,6 +53,12 @@ for (const k of ['version', 'title', 'questions']) {
   if (!(k in data)) err('(파일)', `최상위 "${k}" 필드가 없습니다`, `缺少顶层字段 "${k}"`);
 }
 const qs = Array.isArray(data.questions) ? data.questions : [];
+if (!qs.length && FILE === 'questions.json' && data.version === 'migrated-to-supabase') {
+  console.log('공개 questions.json 은 Supabase 이전 후 빈 자리표시자입니다.');
+  console.log('公开 questions.json 是迁移到 Supabase 后的空占位文件。');
+  console.log(`실제 문항 검사는 ${DEFAULT_PRIVATE} 를 두고 다시 실행하세요.`);
+  process.exit(0);
+}
 if (!qs.length) err('(파일)', 'questions 배열이 비었습니다', 'questions 数组是空的');
 
 /* 3. 문항별 검사 / 逐题检查 */

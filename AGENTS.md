@@ -7,6 +7,7 @@
 
 - 라이브 주소: <https://seunghoonchoi-phd.github.io/gwiwha/> (거울 저장소: <https://seunghoonchoi-phd.github.io/gwiwha2/>)
 - 공개 저장소의 `questions.json` 은 빈 자리표시자다. 실제 문항은 Supabase `questions` 테이블에 있고, 로컬 비공개 백업은 `private-data/questions.backup.json` 에 둔다. `private-data/` 는 `.gitignore` 되어 있으므로 공개 저장소에 올리지 않는다.
+- 회원 명단은 이미 존재하는 Supabase `public.members` 테이블을 쓴다(`id int8`, `created_at`, `note`, `email`, `active`). 이 표를 마이그레이션에서 새로 만들거나 바꾸지 말고, 관리자 추가/비활성화는 Dashboard Table Editor 에서 한다.
 - 공개 홈의 영역명과 문항 수는 `question-catalog.json` 에서 읽는다. 화면·로직은 `index.html` · `app.js` · `membership.js` · `styles.css`, 타자 연습 서브앱은 `typing/` 아래에 따로 있다.
 
 ## 1. 문항 고치기 — `private-data/questions.backup.json` + Supabase

@@ -1,16 +1,17 @@
--- Supabase schema for the gwiwha membership-protected question bank.
--- Run this in Supabase Dashboard -> SQL Editor before importing questions.
+-- Supabase RLS for the gwiwha membership-protected question bank.
+-- Run this in Supabase Dashboard -> SQL Editor after public.members exists.
+--
+-- Expected existing public.members columns:
+--   id int8 primary key
+--   created_at timestamptz default now()
+--   note text
+--   email text
+--   active bool default true
+--
+-- This migration intentionally does not create, drop, or replace public.members.
 
-create extension if not exists pgcrypto;
-
-create table if not exists public.members (
-  id uuid primary key default gen_random_uuid(),
-  email text unique not null,
-  active boolean not null default true,
-  created_at timestamptz not null default now(),
-  note text,
-  constraint members_email_normalized check (email = lower(btrim(email)))
-);
+create index if not exists members_email_normalized_idx
+on public.members (lower(btrim(email)));
 
 create table if not exists public.questions (
   id text primary key,
@@ -31,12 +32,21 @@ create index if not exists questions_question_number_idx on public.questions (qu
 alter table public.members enable row level security;
 alter table public.questions enable row level security;
 
+grant select on public.members to authenticated;
+revoke insert, update, delete on public.members from anon, authenticated;
+
+grant select on public.questions to authenticated;
+revoke insert, update, delete on public.questions from anon, authenticated;
+
 drop policy if exists "members can read own row" on public.members;
 create policy "members can read own row"
 on public.members
 for select
 to authenticated
-using (email = lower(coalesce(auth.jwt() ->> 'email', '')));
+using (
+  lower(btrim(coalesce(email, ''))) =
+  lower(btrim(coalesce(((select auth.jwt()) ->> 'email'), '')))
+);
 
 drop policy if exists "active members can read questions" on public.questions;
 create policy "active members can read questions"
@@ -47,8 +57,9 @@ using (
   exists (
     select 1
     from public.members m
-    where m.email = lower(coalesce(auth.jwt() ->> 'email', ''))
-      and m.active = true
+    where lower(btrim(coalesce(m.email, ''))) =
+          lower(btrim(coalesce(((select auth.jwt()) ->> 'email'), '')))
+      and m.active is true
   )
 );
 

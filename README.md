@@ -67,15 +67,37 @@
 
 수정 후에는 `node tools/check-questions.mjs private-data/questions.backup.json` 로 검사하고, `node tools/import-questions-to-supabase.mjs private-data/questions.backup.json` 로 Supabase 에 다시 가져옵니다.
 
+## Supabase 연결
+
+이 프로젝트는 Vite/빌드 앱이 아니라 GitHub Pages 에 바로 올리는 정적 PWA 입니다. Supabase JS v2 는 `index.html` 과 `typing/index.html` 에서 CDN 으로 불러오고, 초기화 값은 `supabase-config.js` 에 둡니다.
+
+`supabase-config.js`:
+
+```js
+window.GWIWHA_SUPABASE = {
+  url: 'https://YOUR_PROJECT_ID.supabase.co',
+  anonKey: 'YOUR_SUPABASE_ANON_OR_PUBLISHABLE_KEY',
+};
+```
+
+- `url`: Supabase Dashboard → Project Settings → API, 또는 Integrations → Data API 에서 API URL 을 복사합니다.
+- `anonKey`: Supabase Dashboard → Settings → API Keys 에서 Publishable key 또는 legacy `anon` key 를 복사합니다.
+- `service_role` / Secret key 는 브라우저 코드와 GitHub 저장소에 넣지 않습니다.
+- 현재 GitHub Pages 정적 배포는 GitHub Secrets 가 필요 없습니다. Secrets 는 빌드 단계에서 `supabase-config.js` 를 생성하도록 바꿀 때만 필요합니다.
+
+Auth 이메일 로그인 리디렉트가 필요하면 Supabase Dashboard → Authentication → URL Configuration 에 GitHub Pages 주소를 Site URL / Redirect URLs 로 등록합니다.
+
 ## 회원 추가
 
-회원은 Supabase `members` 테이블에 이메일을 소문자로 추가합니다. 브라우저에는 service-role key 를 넣지 말고, 로컬 터미널에서만 실행하세요.
+회원은 기존 Supabase `public.members` 테이블에 이메일을 소문자로 추가합니다. 브라우저에는 service-role key 를 넣지 말고, 로컬 터미널 또는 Supabase Dashboard 에서만 관리하세요.
 
 ```bash
 SUPABASE_URL=https://YOUR_PROJECT_ID.supabase.co \
 SUPABASE_SERVICE_ROLE_KEY=YOUR_SERVICE_ROLE_KEY \
 node tools/add-member-to-supabase.mjs student@example.com "paid"
 ```
+
+Dashboard 에서 직접 추가할 때는 Table Editor → `members` → Insert row 에서 `email` 과 `active=true` 를 넣습니다.
 
 회원 이용을 중지하려면 Supabase Dashboard 의 `members` 테이블에서 해당 이메일의 `active` 값을 `false` 로 바꿉니다.
 

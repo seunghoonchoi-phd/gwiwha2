@@ -31,21 +31,43 @@ if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
   process.exit(1);
 }
 
-const endpoint = `${url.replace(/\/$/, '')}/rest/v1/members?on_conflict=email`;
 const row = {
   email,
   active: true,
 };
 if (note) row.note = note;
 
+const base = url.replace(/\/$/, '');
+const headers = {
+  apikey: serviceKey,
+  authorization: `Bearer ${serviceKey}`,
+  'content-type': 'application/json',
+};
+
+const listUrl = new URL(`${base}/rest/v1/members`);
+listUrl.searchParams.set('select', 'id,email,active,note');
+listUrl.searchParams.set('email', `ilike.${email}`);
+
+const listRes = await fetch(listUrl, { headers });
+if (!listRes.ok) {
+  console.error(await listRes.text());
+  throw new Error(`Failed to check member: ${email}`);
+}
+
+const existing = await listRes.json();
+if (existing.length > 1) {
+  console.warn(`Warning: found ${existing.length} rows matching ${email}. Updating the first row only.`);
+}
+
+const target = existing[0];
+const endpoint = new URL(`${base}/rest/v1/members`);
+if (target && target.id != null) endpoint.searchParams.set('id', `eq.${target.id}`);
+
 const res = await fetch(endpoint, {
-  method: 'POST',
-  headers: {
-    apikey: serviceKey,
-    authorization: `Bearer ${serviceKey}`,
-    'content-type': 'application/json',
-    prefer: 'resolution=merge-duplicates,return=representation',
-  },
+  method: target ? 'PATCH' : 'POST',
+  headers: Object.assign({}, headers, {
+    prefer: 'return=representation',
+  }),
   body: JSON.stringify(row),
 });
 

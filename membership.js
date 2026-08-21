@@ -84,14 +84,18 @@
         setStatus({ signedIn: false, email: '', active: false, reason: 'not_signed_in', loading: false });
         return getStatus();
       }
-      var memberRes = await sb.from('members').select('email, active').eq('email', email).maybeSingle();
+      // RLS is the authorization boundary: the policy only exposes rows whose
+      // normalized email matches the authenticated Supabase Auth user.
+      var memberRes = await sb.from('members').select('email, active');
       if (memberRes.error && memberRes.error.code !== 'PGRST116') throw memberRes.error;
-      var row = memberRes.data;
-      if (!row) {
+      var rows = (memberRes.data || []).filter(function (row) {
+        return normalizeEmail(row.email) === email;
+      });
+      if (!rows.length) {
         setStatus({ signedIn: true, email: email, active: false, reason: 'not_member', loading: false });
         return getStatus();
       }
-      if (!row.active) {
+      if (!rows.some(function (row) { return row.active === true; })) {
         setStatus({ signedIn: true, email: email, active: false, reason: 'inactive', loading: false });
         return getStatus();
       }

@@ -67,6 +67,18 @@
 
 수정 후에는 `node tools/check-questions.mjs private-data/questions.backup.json` 로 검사하고, `node tools/import-questions-to-supabase.mjs private-data/questions.backup.json` 로 Supabase 에 다시 가져옵니다.
 
+## 회원 추가
+
+회원은 Supabase `members` 테이블에 이메일을 소문자로 추가합니다. 브라우저에는 service-role key 를 넣지 말고, 로컬 터미널에서만 실행하세요.
+
+```bash
+SUPABASE_URL=https://YOUR_PROJECT_ID.supabase.co \
+SUPABASE_SERVICE_ROLE_KEY=YOUR_SERVICE_ROLE_KEY \
+node tools/add-member-to-supabase.mjs student@example.com "paid"
+```
+
+회원 이용을 중지하려면 Supabase Dashboard 의 `members` 테이블에서 해당 이메일의 `active` 값을 `false` 로 바꿉니다.
+
 ## 파일 구조
 
 | 파일 | 설명 |
@@ -80,6 +92,7 @@
 | `questions.json` | 공개 빈 자리표시자 |
 | `supabase/migrations/001_membership_and_questions.sql` | members/questions/RLS 생성 SQL |
 | `tools/import-questions-to-supabase.mjs` | 로컬 비공개题库를 Supabase 로 가져오는 스크립트 |
+| `tools/add-member-to-supabase.mjs` | Supabase `members` 테이블에 회원 이메일을 추가하는 스크립트 |
 | `sw.js` | 오프라인/자동 업데이트 서비스워커 |
 | `manifest.webmanifest` | 앱 설치 정보 |
 

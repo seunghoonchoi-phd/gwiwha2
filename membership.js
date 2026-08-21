@@ -116,7 +116,6 @@
       email: clean,
       options: {
         shouldCreateUser: true,
-        emailRedirectTo: location.href.split('#')[0],
       },
     });
     if (res.error) return { ok: false, reason: friendlyAuthError(res.error) };

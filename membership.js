@@ -143,19 +143,49 @@
     setStatus({ signedIn: false, email: '', active: false, reason: 'not_signed_in', loading: false });
   }
 
-  async function fetchQuestions(filters) {
-    var sb = getClient();
-    if (!sb) throw new Error('not_configured');
-    var query = sb.from('questions').select('content').order('question_number', { ascending: true });
+  var QUESTION_PAGE_SIZE = 1000;
+
+  function applyQuestionFilters(query, filters) {
     filters = filters || {};
     if (filters.type) query = query.eq('type', filters.type);
     if (filters.exam) query = query.eq('exam', filters.exam);
-    var res = await query;
+    if (filters.category) query = query.eq('category', filters.category);
+    if (filters.excludeAdvanced) query = query.or('content->>tier.is.null,content->>tier.neq.advanced');
+    if (Array.isArray(filters.ids) && filters.ids.length) query = query.in('id', filters.ids);
+    return query;
+  }
+
+  async function fetchQuestions(filters) {
+    var sb = getClient();
+    if (!sb) throw new Error('not_configured');
+    var rows = [];
+    var from = 0;
+    while (true) {
+      var query = sb.from('questions').select('content').order('question_number', { ascending: true });
+      query = applyQuestionFilters(query, filters).range(from, from + QUESTION_PAGE_SIZE - 1);
+      var res = await query;
+      if (res.error) {
+        console.error('[Gwiwha] Supabase questions query failed', res.error);
+        throw res.error;
+      }
+      var page = res.data || [];
+      rows = rows.concat(page);
+      if (page.length < QUESTION_PAGE_SIZE) break;
+      from += QUESTION_PAGE_SIZE;
+    }
+    return rows.map(function (row) { return row.content; }).filter(Boolean);
+  }
+
+  async function countQuestions(filters) {
+    var sb = getClient();
+    if (!sb) throw new Error('not_configured');
+    var query = sb.from('questions').select('id', { count: 'exact', head: true });
+    var res = await applyQuestionFilters(query, filters || {});
     if (res.error) {
-      console.error('[Gwiwha] Supabase questions query failed', res.error);
+      console.error('[Gwiwha] Supabase questions count failed', res.error);
       throw res.error;
     }
-    return (res.data || []).map(function (row) { return row.content; }).filter(Boolean);
+    return res.count || 0;
   }
 
   window.GwiwhaMembership = {
@@ -167,5 +197,6 @@
     verifyOtp: verifyOtp,
     signOut: signOut,
     fetchQuestions: fetchQuestions,
+    countQuestions: countQuestions,
   };
 })();

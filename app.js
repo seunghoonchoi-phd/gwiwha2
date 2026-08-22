@@ -230,8 +230,6 @@ Object.assign(I18N.ko, {
   'member.otpReq': '인증번호를 입력해 주세요.',
   'member.loading': '회원 정보를 확인하는 중입니다.',
   'member.ready': '회원 확인 완료',
-  'member.entryTitle': '회원 콘텐츠 로그인',
-  'member.entryDesc': '이메일 인증 후 문제풀이를 시작하세요.',
   'sync.publicReady': '공개 목차 준비 완료 · 총 {0}문항',
   'sync.memberReady': '회원 문제 준비 완료 · 총 {0}문항',
 });
@@ -258,8 +256,6 @@ Object.assign(I18N.zh, {
   'member.otpReq': '请输入验证码。',
   'member.loading': '正在确认会员信息。',
   'member.ready': '会员确认完成',
-  'member.entryTitle': '会员内容登录',
-  'member.entryDesc': '邮箱验证后即可开始做题。',
   'sync.publicReady': '公开目录已准备 · 共{0}题',
   'sync.memberReady': '会员题库已准备 · 共{0}题',
 });
@@ -286,8 +282,6 @@ Object.assign(I18N.vi, {
   'member.otpReq': 'Vui lòng nhập mã xác thực.',
   'member.loading': 'Đang kiểm tra hội viên.',
   'member.ready': 'Đã xác nhận hội viên',
-  'member.entryTitle': 'Đăng nhập nội dung hội viên',
-  'member.entryDesc': 'Xác thực email để bắt đầu luyện đề.',
   'sync.publicReady': 'Mục lục công khai đã sẵn sàng · tổng {0} câu',
   'sync.memberReady': 'Ngân hàng câu hỏi hội viên đã sẵn sàng · tổng {0} câu',
 });
@@ -314,8 +308,6 @@ Object.assign(I18N.th, {
   'member.otpReq': 'กรุณากรอกรหัสยืนยัน',
   'member.loading': 'กำลังตรวจสอบสมาชิก',
   'member.ready': 'ตรวจสอบสมาชิกเสร็จแล้ว',
-  'member.entryTitle': 'เข้าสู่ระบบเนื้อหาสมาชิก',
-  'member.entryDesc': 'ยืนยันอีเมลแล้วเริ่มฝึกทำข้อสอบได้',
   'sync.publicReady': 'สารบัญสาธารณะพร้อมแล้ว · ทั้งหมด {0} ข้อ',
   'sync.memberReady': 'คลังข้อสอบสมาชิกพร้อมแล้ว · ทั้งหมด {0} ข้อ',
 });
@@ -459,12 +451,16 @@ let mockSelfGrade = {}; // 모의고사 작문·구술 자가채점(qid → 0/0.
 let swReg = null;
 let pendingMemberAction = null;
 let memberReady = false;
+let bankFullyLoaded = false;
+let writingViewList = [];
+let writingViewKey = '';
 
 /* ---------- 유틸 ---------- */
 const $ = (id) => document.getElementById(id);
 const NUM = ['①', '②', '③', '④', '⑤'];
 function ls(key, def) { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : def; } catch { return def; } }
 function save(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch {} }
+function escHtml(s) { return String(s || '').replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch])); }
 function shuffle(arr) { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 function toast(msg, ms = 2200) { const t0 = $('toast'); t0.textContent = msg; t0.classList.remove('hidden'); clearTimeout(toast._t); toast._t = setTimeout(() => t0.classList.add('hidden'), ms); }
 function fmtDate(iso) { if (!iso) return t('noSync'); const d = new Date(iso); const p = (n) => String(n).padStart(2, '0'); return `${d.getFullYear()}.${p(d.getMonth() + 1)}.${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`; }
@@ -487,8 +483,8 @@ function clearMemberCaches() {
 function catalogExam(key = activeExam) {
   return CATALOG && CATALOG.exams && CATALOG.exams[key] ? CATALOG.exams[key] : { total: 0, mc: 0, writing: 0, oral: 0, categories: [] };
 }
-function catalogMcCount() { return BANK.length ? mcOnly().length : catalogExam().mc; }
-function catalogTotalCount() { return BANK.length ? examBank().length : catalogExam().total; }
+function catalogMcCount() { return bankFullyLoaded && BANK.length ? mcOnly().length : catalogExam().mc; }
+function catalogTotalCount() { return bankFullyLoaded && BANK.length ? examBank().length : catalogExam().total; }
 function qById(id) { return BANK.find((q) => q.id === id); }
 /* 트랙별 문제 풀: 영주용(perm)도 귀화용(nat)과 같은 종합평가 풀을 쓰되,
    심화(tier:advanced) 문항은 귀화용에만 포함(영주=기본과정, 귀화=기본+심화). */
@@ -497,6 +493,30 @@ function inExam(q) { return examOf(q) === poolOf(activeExam) && !(activeExam ===
 const examBank = () => BANK.filter(inExam);
 const mcOnly = () => examBank().filter((q) => q.type === 'mc');
 const byType = (ty) => examBank().filter((q) => q.type === ty);
+function currentQuestionFilters(extra = {}) {
+  const filters = Object.assign({ exam: poolOf(activeExam) }, extra);
+  if (activeExam === 'perm') filters.excludeAdvanced = true;
+  return filters;
+}
+async function fetchMemberQuestions(extra = {}) {
+  if (!window.GwiwhaMembership) throw new Error('not_configured');
+  const list = await window.GwiwhaMembership.fetchQuestions(currentQuestionFilters(extra));
+  return list.filter(inExam);
+}
+function handleQuestionLoadFailure(error, silent = false) {
+  console.error('[Gwiwha] Failed to load Supabase questions', error);
+  const msg = questionLoadErrorMessage(error);
+  setSyncStatus(msg, true);
+  if (!silent) toast(msg, 4200);
+}
+async function loadExerciseQuestions(filters, { silent = false } = {}) {
+  try {
+    return await fetchMemberQuestions(filters);
+  } catch (e) {
+    handleQuestionLoadFailure(e, silent);
+    return [];
+  }
+}
 
 /* =====================================================================
    공유 비밀번호 잠금
@@ -573,7 +593,6 @@ async function init() {
     window.GwiwhaMembership.init().then(async () => {
       memberReady = true;
       renderMemberStatus();
-      if (isActiveMember()) await ensureMemberBank({ silent: true });
       renderHome();
     });
   } else {
@@ -672,10 +691,11 @@ async function ensureMemberBank({ silent = false, force = false } = {}) {
   const st = window.GwiwhaMembership ? await window.GwiwhaMembership.refreshStatus() : memberStatus();
   if (!st.active) {
     BANK = [];
+    bankFullyLoaded = false;
     if (!silent) showMemberRequired(st.reason);
     return false;
   }
-  if (BANK.length && !force) return true;
+  if (bankFullyLoaded && BANK.length && !force) return true;
   try {
     if (!silent) toast(t('toast.syncing'));
     const list = await window.GwiwhaMembership.fetchQuestions();
@@ -685,6 +705,7 @@ async function ensureMemberBank({ silent = false, force = false } = {}) {
       throw err;
     }
     BANK = list;
+    bankFullyLoaded = true;
     META = { version: (CATALOG && CATALOG.version) || 'Supabase', syncedAt: new Date().toISOString() };
     setSyncStatus(t('sync.memberReady', BANK.length), false);
     if (!silent) toast(t('toast.syncDone', BANK.length));
@@ -693,6 +714,7 @@ async function ensureMemberBank({ silent = false, force = false } = {}) {
   } catch (e) {
     console.error('[Gwiwha] Failed to load Supabase questions', e);
     BANK = [];
+    bankFullyLoaded = false;
     const msg = questionLoadErrorMessage(e);
     setSyncStatus(msg, true);
     if (!silent) toast(msg, 4200);
@@ -718,6 +740,7 @@ async function sync({ silent = false } = {}) {
     if (isActiveMember()) await ensureMemberBank({ silent, force: true });
     else {
       BANK = [];
+      bankFullyLoaded = false;
       setSyncStatus(t('sync.publicReady', catalogTotalCount()), false);
       if (!silent) toast(t('sync.publicReady', catalogTotalCount()));
       renderHome();
@@ -787,16 +810,21 @@ function closeMemberModal() {
 function showMemberRequired(reason) {
   openMemberModal(reason || memberStatus().reason || 'not_signed_in');
 }
-async function requireMembership(action) {
+async function requireMembership(action, options = {}) {
   const st = window.GwiwhaMembership ? await window.GwiwhaMembership.refreshStatus() : memberStatus();
   renderMemberStatus();
-  if (st.active) {
-    const ok = await ensureMemberBank({ silent: true });
-    if (!ok) return false;
+  const runAction = async () => {
+    if (options.loadBank) {
+      const ok = await ensureMemberBank({ silent: true });
+      if (!ok) return false;
+    }
     if (typeof action === 'function') await action();
     return true;
+  };
+  if (st.active) {
+    return runAction();
   }
-  pendingMemberAction = action || null;
+  pendingMemberAction = action ? runAction : null;
   showMemberRequired(st.reason);
   return false;
 }
@@ -809,6 +837,9 @@ function onMembershipChange(st) {
   renderMemberStatus();
   if (!st.active) {
     BANK = [];
+    bankFullyLoaded = false;
+    writingViewList = [];
+    writingViewKey = '';
     clearMemberCaches();
     META = { version: (CATALOG && CATALOG.version) || '-', syncedAt: null };
     if (['quiz', 'writing', 'wrong', 'result'].includes(currentView)) {
@@ -818,36 +849,73 @@ function onMembershipChange(st) {
     }
   }
 }
+function memberIconSvg() {
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/></svg>';
+}
+function closeMemberAccountMenu() {
+  const menu = $('memberAccountMenu');
+  const btn = $('memberTopBtn');
+  if (menu) menu.classList.add('hidden');
+  if (btn) btn.setAttribute('aria-expanded', 'false');
+}
+async function signOutMemberUi() {
+  if (window.GwiwhaMembership) await window.GwiwhaMembership.signOut();
+  BANK = [];
+  bankFullyLoaded = false;
+  writingViewList = [];
+  writingViewKey = '';
+  clearMemberCaches();
+  pendingMemberAction = null;
+  closeMemberModal();
+  closeMemberAccountMenu();
+  renderMemberStatus();
+  renderHome();
+}
 function renderMemberStatus() {
   const box = $('memberStatus');
   if (!box) return;
   const st = memberStatus();
-  if (!st.configured) {
-    box.innerHTML = `<button type="button" class="member-chip" id="memberTopBtn">${t('member.loginShort')}</button>`;
-  } else if (st.signedIn) {
-    box.innerHTML = `<button type="button" class="member-chip" id="memberTopBtn"><span class="member-chip__email">${st.email || ''}</span><span>${t('member.logout')}</span></button>`;
+  const icon = `<span class="member-chip__avatar">${memberIconSvg()}</span>`;
+  if (st.signedIn) {
+    const email = escHtml(st.email || '');
+    const state = escHtml(st.active ? t('member.ready') : memberReasonMessage(st.reason));
+    box.innerHTML =
+      `<button type="button" class="member-chip member-chip--signed" id="memberTopBtn" aria-haspopup="menu" aria-expanded="false" title="${email}">${icon}<span class="member-chip__email">${email}</span></button>` +
+      `<div class="member-menu hidden" id="memberAccountMenu" role="menu">` +
+      `<div class="member-menu__email">${email}</div>` +
+      `<div class="member-menu__state">${state}</div>` +
+      `<button type="button" class="btn btn--ghost member-menu__logout" id="memberMenuLogoutBtn" role="menuitem">${t('member.logout')}</button>` +
+      `</div>`;
   } else {
-    box.innerHTML = `<button type="button" class="member-chip" id="memberTopBtn">${t('member.loginShort')}</button>`;
+    const label = escHtml(t('member.loginShort'));
+    box.innerHTML = `<button type="button" class="member-chip member-chip--icon" id="memberTopBtn" aria-label="${label}" title="${label}">${icon}</button>`;
   }
   const btn = $('memberTopBtn');
   if (btn) {
-    btn.addEventListener('click', async () => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
       const cur = memberStatus();
       if (cur.signedIn) {
-        if (window.GwiwhaMembership) await window.GwiwhaMembership.signOut();
-        BANK = [];
-        clearMemberCaches();
-        renderMemberStatus();
-        renderHome();
-      } else openMemberModal();
+        const menu = $('memberAccountMenu');
+        const open = menu && menu.classList.contains('hidden');
+        if (menu) menu.classList.toggle('hidden', !open);
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      } else openMemberModal(cur.configured ? '' : 'not_configured');
     });
   }
+  const logout = $('memberMenuLogoutBtn');
+  if (logout) logout.addEventListener('click', (e) => { e.stopPropagation(); signOutMemberUi(); });
 }
 function wireMemberUi() {
   const cancel = $('memberCancelBtn');
   if (cancel) cancel.addEventListener('click', () => { pendingMemberAction = null; closeMemberModal(); });
   const modal = $('memberModal');
   if (modal) modal.addEventListener('click', (e) => { if (e.target === modal) { pendingMemberAction = null; closeMemberModal(); } });
+  document.addEventListener('click', (e) => {
+    const box = $('memberStatus');
+    if (box && !box.contains(e.target)) closeMemberAccountMenu();
+  });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMemberAccountMenu(); });
   const send = $('memberSendOtpBtn');
   if (send) send.addEventListener('click', async () => {
     if (!window.GwiwhaMembership) { setMemberMessage(t('member.config'), 'error'); return; }
@@ -875,22 +943,12 @@ function wireMemberUi() {
       setMemberMessage(memberReasonMessage(reason), 'error');
       return;
     }
-    const ok = await ensureMemberBank({ silent: true, force: true });
-    if (!ok) { setMemberMessage(t('member.network'), 'error'); return; }
     setMemberMessage(t('member.ready'), 'ok');
     closeMemberModal();
     await runPendingMemberAction();
   });
   const logout = $('memberLogoutBtn');
-  if (logout) logout.addEventListener('click', async () => {
-    if (window.GwiwhaMembership) await window.GwiwhaMembership.signOut();
-    BANK = [];
-    clearMemberCaches();
-    pendingMemberAction = null;
-    closeMemberModal();
-    renderMemberStatus();
-    renderHome();
-  });
+  if (logout) logout.addEventListener('click', signOutMemberUi);
 }
 
 /* =====================================================================
@@ -900,7 +958,7 @@ function renderHome() {
   $('wrongCount').textContent = t('wrongCount', wrongCount());
   const mc = catalogMcCount();
   $('bankInfo').textContent = t('bankInfo', META.version, mc, fmtDate(META.syncedAt));
-  if (isActiveMember() && BANK.length) setSyncStatus(t('sync.memberReady', BANK.length), false);
+  if (isActiveMember() && bankFullyLoaded && BANK.length) setSyncStatus(t('sync.memberReady', BANK.length), false);
   else setSyncStatus(t('sync.publicReady', catalogTotalCount()), false);
 
   renderExamDate();
@@ -925,7 +983,7 @@ function daysUntil(iso) {
 function pacePerDay(daysLeft) {
   const s = ls(ekey(K.stats), { total: 0, correct: 0, cat: {} });
   const donePer = s.cat ? Object.values(s.cat).reduce((a, c) => a + (c.t || 0), 0) : 0;
-  const totalMc = mcOnly().length;
+  const totalMc = catalogMcCount();
   const remaining = Math.max(0, totalMc - donePer) + wrongCount();
   const per = Math.ceil(remaining / Math.max(1, daysLeft));
   return { per: Math.max(10, per), remaining };
@@ -960,7 +1018,7 @@ function renderCategories() {
   else rb.classList.add('hidden');
 
   const cats = {};
-  if (BANK.length) mcOnly().forEach((q) => { cats[q.category] = (cats[q.category] || 0) + 1; });
+  if (bankFullyLoaded && BANK.length) mcOnly().forEach((q) => { cats[q.category] = (cats[q.category] || 0) + 1; });
   else (catalogExam().categories || []).forEach((c) => { if (c.mc) cats[c.category] = c.mc; });
   const wrap = $('categoryList');
   wrap.innerHTML = '';
@@ -999,17 +1057,19 @@ function practiceCategory(cat) {
   startPracticeCategory(cat);
 }
 function startPracticeAll(weak) {
-  requireMembership(() => {
-    const list = weak ? weakPriorityOrder(mcOnly()) : shuffle(mcOnly());
+  requireMembership(async () => {
+    const pool = await loadExerciseQuestions({ type: 'mc' });
+    const list = weak ? weakPriorityOrder(pool) : shuffle(pool);
     if (!list.length) { toast(t('toast.noQ')); return; }
     startQuiz(list, 'practice');
   });
 }
 function startPracticeCategory(cat) {
-  requireMembership(() => {
-    const list = mcOnly().filter((q) => q.category === cat);
+  requireMembership(async () => {
+    const pool = await loadExerciseQuestions({ type: 'mc', category: cat });
+    const list = shuffle(pool);
     if (!list.length) { toast(t('toast.noQ')); return; }
-    startQuiz(shuffle(list), 'practice');
+    startQuiz(list, 'practice');
   });
 }
 function catItem(name, count, onClick, sub) {
@@ -1096,16 +1156,29 @@ function showExamIntro() {
   else btn.classList.add('hidden');
   showView('examintro');
 }
-function startMockExam() {
-  if (!mcOnly().length) { toast(t('toast.noQ')); return; }
+async function startMockExam() {
   if (getMockSave() && !confirm(t('confirm.discardMock'))) return;
   clearMockSave();
   const cfg = exam().mock;
+  let mcPool = [];
+  let writingPool = [];
+  let oralPool = [];
+  try {
+    [mcPool, writingPool, oralPool] = await Promise.all([
+      fetchMemberQuestions({ type: 'mc' }),
+      fetchMemberQuestions({ type: 'writing' }),
+      fetchMemberQuestions({ type: 'oral' }),
+    ]);
+  } catch (e) {
+    handleQuestionLoadFailure(e);
+    return;
+  }
+  if (!mcPool.length) { toast(t('toast.noQ')); return; }
   let mc;
   if (cfg.ladder) {
     // 사전평가: 한국어 영역 80% + 문화·사회 20%, 번호↑=난이도↑(level 오름차순) 재현
     const korCats = ['어휘', '문법', '읽기·이해', '대화'];
-    const all = mcOnly();
+    const all = mcPool;
     const kor = all.filter((q) => korCats.includes(q.category));
     const cs = all.filter((q) => !korCats.includes(q.category));
     const nCS = Math.min(cs.length, Math.round(cfg.mc * 0.2));
@@ -1116,7 +1189,7 @@ function startMockExam() {
   } else {
     // 종합평가 객관식 36문항: 무작위 대신 영역 쿼터 추첨(책 실전모의 6회 평균 재현)
     const quota = { '한국어': 12, '법': 5, '사회': 4, '역사': 4, '문화': 3, '정치': 3, '경제': 3, '교육': 1, '지리': 1 };
-    const all = mcOnly();
+    const all = mcPool;
     const byCat = {};
     all.forEach((q) => { (byCat[q.category] = byCat[q.category] || []).push(q); });
     let picked = [];
@@ -1133,15 +1206,15 @@ function startMockExam() {
     const restMc = picked.filter((q) => q.category !== '한국어');
     mc = shuffle(korMc).concat(shuffle(restMc));
   }
-  const wr = shuffle(byType('writing')).slice(0, cfg.writing);
-  const or = pickOral(cfg.oral);
+  const wr = shuffle(writingPool).slice(0, cfg.writing);
+  const or = pickOral(cfg.oral, oralPool);
   startQuiz(mc.concat(wr).concat(or), 'mock');
 }
 /* G: 구술 출제 — 사전평가는 공식 유형 구성(읽기1·이해1·대화1·듣고말하기2)을 재현한다.
    지문 읽기(read)와 그 내용 확인(comp)은 짝이라 읽기를 먼저 뽑고 이해는 같은 지문 세트에서 고른다.
    종합평가는 유형 구분이 없으므로 무작위. */
-function pickOral(n) {
-  const pool = byType('oral');
+function pickOral(n, source) {
+  const pool = source || byType('oral');
   if (activeExam !== 'pre' || !pool.some((q) => q.otype)) return shuffle(pool).slice(0, n);
   const of = (t) => shuffle(pool.filter((q) => q.otype === t));
   const quota = { read: 1, comp: 1, talk: 1, listen: 2 };
@@ -1665,6 +1738,21 @@ function wireListen(el, q) {
 /* =====================================================================
    작문 / 구술
    ===================================================================== */
+function writingCacheKey() {
+  return activeExam + '|' + writingType;
+}
+function writingQuestionsForView() {
+  if (writingViewKey === writingCacheKey()) return writingViewList;
+  return bankFullyLoaded ? byType(writingType) : [];
+}
+async function openWritingView(type) {
+  if (type) writingType = type;
+  syncSeg();
+  writingViewKey = writingCacheKey();
+  writingViewList = await loadExerciseQuestions({ type: writingType });
+  renderWriting();
+  showView('writing');
+}
 /* E: 원고지 작성법 카드(종합평가 nat/perm 작문 전용) — 기존 guide.show/hide 접이식 패턴 재사용 */
 function wongojiCardHtml() {
   return `<button type="button" class="writing-card__guide-toggle">${t('guide.show')}</button>
@@ -1676,7 +1764,7 @@ function wireWongojiToggle(el) {
   tg.addEventListener('click', () => { gd.classList.toggle('hidden'); tg.textContent = gd.classList.contains('hidden') ? t('guide.show') : t('guide.hide'); });
 }
 function renderWriting() {
-  const list = byType(writingType);
+  const list = writingQuestionsForView();
   // E: 원고지 카드는 작문 탭 + 종합평가(nat/perm)에서만, 목록 위에 한 번만 표시(문항마다 반복하지 않음)
   const wp = $('wongojiPractice');
   const showWongoji = writingType === 'writing' && (activeExam === 'nat' || activeExam === 'perm');
@@ -1766,7 +1854,11 @@ function renderStats() {
     <div class="stat"><div class="stat__num">${s.total}</div><div class="stat__label">${t('stats.total')}</div></div>
     <div class="stat"><div class="stat__num">${acc}%</div><div class="stat__label">${t('stats.acc')}</div></div>`;
   // 영역별 정답률 막대 + "이 영역만 연습" 버튼(해당 영역에 MC 문항이 있을 때만)
-  const mcCats = new Set(mcOnly().map((q) => q.category));
+  const mcCats = new Set(
+    bankFullyLoaded
+      ? mcOnly().map((q) => q.category)
+      : (catalogExam().categories || []).filter((c) => c.mc).map((c) => c.category)
+  );
   const hl = $('historyList');
   hl.innerHTML = '';
   const catKeys = sortCats(Object.keys(s.cat));
@@ -1800,7 +1892,6 @@ function wireEvents() {
   $('homeBtn').addEventListener('click', () => { showView('home'); renderHome(); });
   $('syncBtn').addEventListener('click', () => sync({ silent: false }));
   $('langBtn').addEventListener('click', openLangPicker);
-  $('memberHomeBtn').addEventListener('click', () => openMemberModal());
   document.querySelectorAll('#langSplash .lang-opt').forEach((b) => b.addEventListener('click', () => chooseLang(b.dataset.lang)));
   document.querySelectorAll('#trackSeg .seg__btn').forEach((b) => b.addEventListener('click', () => setExam(b.dataset.exam)));
 
@@ -1810,8 +1901,8 @@ function wireEvents() {
       if (go === 'home') { showView('home'); renderHome(); }
       else if (go === 'mock') showExamIntro();
       else if (go === 'practice') { renderCategories(); showView('practice'); }
-      else if (go === 'writing') requireMembership(() => { writingType = 'writing'; syncSeg(); renderWriting(); showView('writing'); });
-      else if (go === 'wrong') requireMembership(() => { renderWrong(); showView('wrong'); });
+      else if (go === 'writing') requireMembership(() => openWritingView('writing'));
+      else if (go === 'wrong') requireMembership(() => { renderWrong(); showView('wrong'); }, { loadBank: true });
       else if (go === 'stats') { renderStats(); showView('stats'); }
       else if (go === 'typing') requireMembership(() => { window.location.href = 'typing/'; });
     });
@@ -1827,14 +1918,14 @@ function wireEvents() {
   $('prevBtn').addEventListener('click', prevQuestion);
   $('submitBtn').addEventListener('click', () => { if (confirm(t('confirm.submit'))) gradeMock(); });
   $('examStartBtn').addEventListener('click', () => requireMembership(startMockExam));
-  $('resumeBanner').addEventListener('click', () => requireMembership(resumeMock));
-  $('examResumeBtn').addEventListener('click', () => requireMembership(resumeMock));
-  $('practiceResume').addEventListener('click', () => requireMembership(resumePractice));
+  $('resumeBanner').addEventListener('click', () => requireMembership(resumeMock, { loadBank: true }));
+  $('examResumeBtn').addEventListener('click', () => requireMembership(resumeMock, { loadBank: true }));
+  $('practiceResume').addEventListener('click', () => requireMembership(resumePractice, { loadBank: true }));
   $('writeInput').addEventListener('input', onWriteInput);
 
-  $('writingSeg').querySelectorAll('.seg__btn').forEach((b) => { b.addEventListener('click', () => { writingType = b.dataset.wt; syncSeg(); renderWriting(); }); });
+  $('writingSeg').querySelectorAll('.seg__btn').forEach((b) => { b.addEventListener('click', () => requireMembership(() => openWritingView(b.dataset.wt))); });
 
-  $('startWrongBtn').addEventListener('click', () => requireMembership(() => startQuiz(shuffle(wrongSolvable()), 'wrong')));
+  $('startWrongBtn').addEventListener('click', () => requireMembership(() => startQuiz(shuffle(wrongSolvable()), 'wrong'), { loadBank: true }));
   $('clearWrongBtn').addEventListener('click', () => { if (confirm(t('confirm.clearWrong'))) { save(ekey(K.wrong), {}); renderWrong(); renderHome(); toast(t('toast.clearedWrong')); } });
   $('resetStatsBtn').addEventListener('click', () => { if (confirm(t('confirm.resetStats'))) { save(ekey(K.stats), { total: 0, correct: 0, cat: {} }); save(ekey(K.history), []); renderStats(); toast(t('toast.resetStats')); } });
 }

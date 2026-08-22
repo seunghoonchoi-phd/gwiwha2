@@ -221,6 +221,10 @@ Object.assign(I18N.ko, {
   'member.notMember': '등록된 회원이 아닙니다.\n결제 후 이용할 수 있습니다.',
   'member.inactive': '현재 이용할 수 없는 계정입니다.\n관리자에게 문의해 주세요.',
   'member.network': '네트워크 오류가 발생했습니다.\n다시 시도해 주세요.',
+  'questions.missing': 'Supabase questions 테이블이 아직 없습니다.\nSQL Editor 에서 questions 테이블과 RLS SQL을 실행해 주세요.',
+  'questions.empty': 'Supabase questions 테이블에 문항이 없습니다.\n문항 가져오기 스크립트를 실행해 주세요.',
+  'questions.permission': 'Supabase questions 읽기 권한 또는 RLS 설정을 확인해 주세요.',
+  'questions.loadFail': '문항을 불러오지 못했습니다.\nConsole 의 Supabase 오류를 확인해 주세요.',
   'member.config': '회원 시스템 설정이 필요합니다.',
   'member.emailReq': '이메일을 입력해 주세요.',
   'member.otpReq': '인증번호를 입력해 주세요.',
@@ -245,6 +249,10 @@ Object.assign(I18N.zh, {
   'member.notMember': '不是已登记会员。\n付款后可以使用。',
   'member.inactive': '当前账号无法使用。\n请联系管理员。',
   'member.network': '发生网络错误。\n请重试。',
+  'questions.missing': 'Supabase questions 表还不存在。\n请在 SQL Editor 运行 questions 表和 RLS SQL。',
+  'questions.empty': 'Supabase questions 表里还没有题目。\n请运行题库导入脚本。',
+  'questions.permission': '请检查 Supabase questions 的 SELECT 权限或 RLS 设置。',
+  'questions.loadFail': '题目读取失败。\n请查看 Console 中的 Supabase 错误。',
   'member.config': '需要设置会员系统。',
   'member.emailReq': '请输入邮箱。',
   'member.otpReq': '请输入验证码。',
@@ -269,6 +277,10 @@ Object.assign(I18N.vi, {
   'member.notMember': 'Bạn chưa phải hội viên đã đăng ký.\nVui lòng thanh toán để sử dụng.',
   'member.inactive': 'Tài khoản hiện không thể sử dụng.\nVui lòng liên hệ quản trị viên.',
   'member.network': 'Đã xảy ra lỗi mạng.\nVui lòng thử lại.',
+  'questions.missing': 'Chưa có bảng Supabase questions.\nHãy chạy SQL tạo questions và RLS trong SQL Editor.',
+  'questions.empty': 'Bảng Supabase questions chưa có câu hỏi.\nHãy chạy script nhập câu hỏi.',
+  'questions.permission': 'Hãy kiểm tra quyền SELECT hoặc RLS của Supabase questions.',
+  'questions.loadFail': 'Không tải được câu hỏi.\nHãy xem lỗi Supabase trong Console.',
   'member.config': 'Cần thiết lập hệ thống hội viên.',
   'member.emailReq': 'Vui lòng nhập email.',
   'member.otpReq': 'Vui lòng nhập mã xác thực.',
@@ -293,6 +305,10 @@ Object.assign(I18N.th, {
   'member.notMember': 'ยังไม่ใช่สมาชิกที่ลงทะเบียน\nชำระเงินแล้วจึงใช้งานได้',
   'member.inactive': 'บัญชีนี้ไม่สามารถใช้งานได้ในขณะนี้\nกรุณาติดต่อผู้ดูแล',
   'member.network': 'เกิดข้อผิดพลาดเครือข่าย\nกรุณาลองอีกครั้ง',
+  'questions.missing': 'ยังไม่มีตาราง Supabase questions\nกรุณารัน SQL สำหรับ questions และ RLS ใน SQL Editor',
+  'questions.empty': 'ตาราง Supabase questions ยังไม่มีข้อสอบ\nกรุณารันสคริปต์นำเข้าข้อสอบ',
+  'questions.permission': 'กรุณาตรวจสอบสิทธิ์ SELECT หรือ RLS ของ Supabase questions',
+  'questions.loadFail': 'โหลดข้อสอบไม่สำเร็จ\nกรุณาดูข้อผิดพลาด Supabase ใน Console',
   'member.config': 'ต้องตั้งค่าระบบสมาชิก',
   'member.emailReq': 'กรุณากรอกอีเมล',
   'member.otpReq': 'กรุณากรอกรหัสยืนยัน',
@@ -663,7 +679,11 @@ async function ensureMemberBank({ silent = false, force = false } = {}) {
   try {
     if (!silent) toast(t('toast.syncing'));
     const list = await window.GwiwhaMembership.fetchQuestions();
-    if (!Array.isArray(list) || !list.length) throw new Error('empty question bank');
+    if (!Array.isArray(list) || !list.length) {
+      const err = new Error('empty question bank');
+      err.code = 'EMPTY_QUESTION_BANK';
+      throw err;
+    }
     BANK = list;
     META = { version: (CATALOG && CATALOG.version) || 'Supabase', syncedAt: new Date().toISOString() };
     setSyncStatus(t('sync.memberReady', BANK.length), false);
@@ -671,11 +691,22 @@ async function ensureMemberBank({ silent = false, force = false } = {}) {
     renderHome();
     return true;
   } catch (e) {
+    console.error('[Gwiwha] Failed to load Supabase questions', e);
     BANK = [];
-    setSyncStatus(t('sync.first'), true);
-    if (!silent) toast(t('member.network'));
+    const msg = questionLoadErrorMessage(e);
+    setSyncStatus(msg, true);
+    if (!silent) toast(msg, 4200);
     return false;
   }
+}
+
+function questionLoadErrorMessage(error) {
+  const code = String((error && error.code) || '');
+  const message = String((error && error.message) || '').toLowerCase();
+  if (code === 'PGRST205' || message.includes("could not find the table 'public.questions'")) return t('questions.missing');
+  if (code === 'EMPTY_QUESTION_BANK') return t('questions.empty');
+  if (code === '42501' || message.includes('permission denied') || message.includes('row-level security')) return t('questions.permission');
+  return t('questions.loadFail');
 }
 
 async function sync({ silent = false } = {}) {

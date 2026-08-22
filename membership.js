@@ -151,7 +151,10 @@
     if (filters.type) query = query.eq('type', filters.type);
     if (filters.exam) query = query.eq('exam', filters.exam);
     var res = await query;
-    if (res.error) throw res.error;
+    if (res.error) {
+      console.error('[Gwiwha] Supabase questions query failed', res.error);
+      throw res.error;
+    }
     return (res.data || []).map(function (row) { return row.content; }).filter(Boolean);
   }
 

@@ -1,6 +1,6 @@
 {
   "version": "2026-08-18",
-  "sourceCount": 1591,
+  "sourceCount": 1638,
   "exams": {
     "pre": {
       "total": 835,
@@ -67,15 +67,15 @@
       ]
     },
     "perm": {
-      "total": 711,
-      "mc": 641,
-      "writing": 13,
-      "oral": 57,
+      "total": 758,
+      "mc": 657,
+      "writing": 42,
+      "oral": 59,
       "categories": [
         {
           "category": "한국어",
-          "total": 198,
-          "mc": 198,
+          "total": 201,
+          "mc": 201,
           "writing": 0,
           "oral": 0
         },
@@ -88,8 +88,8 @@
         },
         {
           "category": "정치",
-          "total": 43,
-          "mc": 43,
+          "total": 46,
+          "mc": 46,
           "writing": 0,
           "oral": 0
         },
@@ -109,17 +109,17 @@
         },
         {
           "category": "작문",
-          "total": 13,
+          "total": 42,
           "mc": 0,
-          "writing": 13,
+          "writing": 42,
           "oral": 0
         },
         {
           "category": "구술",
-          "total": 57,
+          "total": 59,
           "mc": 0,
           "writing": 0,
-          "oral": 57
+          "oral": 59
         },
         {
           "category": "사회",
@@ -137,8 +137,8 @@
         },
         {
           "category": "지리",
-          "total": 55,
-          "mc": 55,
+          "total": 65,
+          "mc": 65,
           "writing": 0,
           "oral": 0
         },
@@ -152,15 +152,15 @@
       ]
     },
     "nat": {
-      "total": 756,
-      "mc": 686,
-      "writing": 13,
-      "oral": 57,
+      "total": 803,
+      "mc": 702,
+      "writing": 42,
+      "oral": 59,
       "categories": [
         {
           "category": "한국어",
-          "total": 198,
-          "mc": 198,
+          "total": 201,
+          "mc": 201,
           "writing": 0,
           "oral": 0
         },
@@ -173,8 +173,8 @@
         },
         {
           "category": "정치",
-          "total": 53,
-          "mc": 53,
+          "total": 56,
+          "mc": 56,
           "writing": 0,
           "oral": 0
         },
@@ -194,17 +194,17 @@
         },
         {
           "category": "작문",
-          "total": 13,
+          "total": 42,
           "mc": 0,
-          "writing": 13,
+          "writing": 42,
           "oral": 0
         },
         {
           "category": "구술",
-          "total": 57,
+          "total": 59,
           "mc": 0,
           "writing": 0,
-          "oral": 57
+          "oral": 59
         },
         {
           "category": "사회",
@@ -222,8 +222,8 @@
         },
         {
           "category": "지리",
-          "total": 55,
-          "mc": 55,
+          "total": 65,
+          "mc": 65,
           "writing": 0,
           "oral": 0
         },

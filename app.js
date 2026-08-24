@@ -1219,7 +1219,13 @@ function pickOral(n, source) {
   const of = (t) => shuffle(pool.filter((q) => q.otype === t));
   const quota = { read: 1, comp: 1, talk: 1, listen: 2 };
   const picked = [];
-  Object.keys(quota).forEach((t) => picked.push(...of(t).slice(0, quota[t])));
+  // 읽기 지문과 그 내용 확인은 같은 set 이어야 한다. 읽기를 먼저 뽑고, 같은 set 의 이해 문항을 짝으로 고른다.
+  const readPick = of('read')[0];
+  if (readPick) picked.push(readPick);
+  const comps = of('comp');
+  const compPick = (readPick && readPick.set && comps.find((q) => q.set === readPick.set)) || comps[0];
+  if (compPick) picked.push(compPick);
+  ['talk', 'listen'].forEach((t) => picked.push(...of(t).slice(0, quota[t])));
   // 쿼터를 못 채웠으면(유형별 문항 부족) 남은 것으로 총수를 맞춘다
   if (picked.length < n) {
     const got = new Set(picked.map((q) => q.id));

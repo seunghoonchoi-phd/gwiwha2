@@ -1,6 +1,6 @@
 {
   "version": "2026-08-18",
-  "sourceCount": 1638,
+  "sourceCount": 1650,
   "exams": {
     "pre": {
       "total": 835,
@@ -67,10 +67,10 @@
       ]
     },
     "perm": {
-      "total": 758,
+      "total": 770,
       "mc": 657,
       "writing": 42,
-      "oral": 59,
+      "oral": 71,
       "categories": [
         {
           "category": "한국어",
@@ -116,10 +116,10 @@
         },
         {
           "category": "구술",
-          "total": 59,
+          "total": 71,
           "mc": 0,
           "writing": 0,
-          "oral": 59
+          "oral": 71
         },
         {
           "category": "사회",
@@ -152,10 +152,10 @@
       ]
     },
     "nat": {
-      "total": 803,
+      "total": 815,
       "mc": 702,
       "writing": 42,
-      "oral": 59,
+      "oral": 71,
       "categories": [
         {
           "category": "한국어",
@@ -201,10 +201,10 @@
         },
         {
           "category": "구술",
-          "total": 59,
+          "total": 71,
           "mc": 0,
           "writing": 0,
-          "oral": 59
+          "oral": 71
         },
         {
           "category": "사회",

@@ -1,6 +1,6 @@
 {
   "version": "2026-08-18",
-  "sourceCount": 1670,
+  "sourceCount": 1777,
   "exams": {
     "pre": {
       "total": 835,
@@ -67,15 +67,15 @@
       ]
     },
     "perm": {
-      "total": 790,
-      "mc": 677,
+      "total": 897,
+      "mc": 755,
       "writing": 42,
-      "oral": 71,
+      "oral": 100,
       "categories": [
         {
           "category": "한국어",
-          "total": 201,
-          "mc": 201,
+          "total": 240,
+          "mc": 240,
           "writing": 0,
           "oral": 0
         },
@@ -88,15 +88,15 @@
         },
         {
           "category": "정치",
-          "total": 46,
-          "mc": 46,
+          "total": 50,
+          "mc": 50,
           "writing": 0,
           "oral": 0
         },
         {
           "category": "법",
-          "total": 72,
-          "mc": 72,
+          "total": 89,
+          "mc": 89,
           "writing": 0,
           "oral": 0
         },
@@ -116,22 +116,22 @@
         },
         {
           "category": "구술",
-          "total": 71,
+          "total": 100,
           "mc": 0,
           "writing": 0,
-          "oral": 71
+          "oral": 100
         },
         {
           "category": "사회",
-          "total": 63,
-          "mc": 63,
+          "total": 71,
+          "mc": 71,
           "writing": 0,
           "oral": 0
         },
         {
           "category": "문화",
-          "total": 50,
-          "mc": 50,
+          "total": 60,
+          "mc": 60,
           "writing": 0,
           "oral": 0
         },
@@ -152,15 +152,15 @@
       ]
     },
     "nat": {
-      "total": 835,
-      "mc": 722,
+      "total": 942,
+      "mc": 800,
       "writing": 42,
-      "oral": 71,
+      "oral": 100,
       "categories": [
         {
           "category": "한국어",
-          "total": 201,
-          "mc": 201,
+          "total": 240,
+          "mc": 240,
           "writing": 0,
           "oral": 0
         },
@@ -173,15 +173,15 @@
         },
         {
           "category": "정치",
-          "total": 56,
-          "mc": 56,
+          "total": 60,
+          "mc": 60,
           "writing": 0,
           "oral": 0
         },
         {
           "category": "법",
-          "total": 83,
-          "mc": 83,
+          "total": 100,
+          "mc": 100,
           "writing": 0,
           "oral": 0
         },
@@ -201,22 +201,22 @@
         },
         {
           "category": "구술",
-          "total": 71,
+          "total": 100,
           "mc": 0,
           "writing": 0,
-          "oral": 71
+          "oral": 100
         },
         {
           "category": "사회",
-          "total": 72,
-          "mc": 72,
+          "total": 80,
+          "mc": 80,
           "writing": 0,
           "oral": 0
         },
         {
           "category": "문화",
-          "total": 50,
-          "mc": 50,
+          "total": 60,
+          "mc": 60,
           "writing": 0,
           "oral": 0
         },

@@ -1,6 +1,6 @@
 {
   "version": "2026-08-18",
-  "sourceCount": 1650,
+  "sourceCount": 1670,
   "exams": {
     "pre": {
       "total": 835,
@@ -67,8 +67,8 @@
       ]
     },
     "perm": {
-      "total": 770,
-      "mc": 657,
+      "total": 790,
+      "mc": 677,
       "writing": 42,
       "oral": 71,
       "categories": [
@@ -130,8 +130,8 @@
         },
         {
           "category": "문화",
-          "total": 40,
-          "mc": 40,
+          "total": 50,
+          "mc": 50,
           "writing": 0,
           "oral": 0
         },
@@ -144,16 +144,16 @@
         },
         {
           "category": "교육",
-          "total": 38,
-          "mc": 38,
+          "total": 48,
+          "mc": 48,
           "writing": 0,
           "oral": 0
         }
       ]
     },
     "nat": {
-      "total": 815,
-      "mc": 702,
+      "total": 835,
+      "mc": 722,
       "writing": 42,
       "oral": 71,
       "categories": [
@@ -215,8 +215,8 @@
         },
         {
           "category": "문화",
-          "total": 40,
-          "mc": 40,
+          "total": 50,
+          "mc": 50,
           "writing": 0,
           "oral": 0
         },
@@ -229,8 +229,8 @@
         },
         {
           "category": "교육",
-          "total": 38,
-          "mc": 38,
+          "total": 48,
+          "mc": 48,
           "writing": 0,
           "oral": 0
         }

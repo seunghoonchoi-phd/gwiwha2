@@ -1,12 +1,12 @@
 {
   "version": "2026-08-18",
-  "sourceCount": 1815,
+  "sourceCount": 1885,
   "exams": {
     "pre": {
-      "total": 835,
+      "total": 905,
       "mc": 767,
       "writing": 38,
-      "oral": 30,
+      "oral": 100,
       "categories": [
         {
           "category": "어휘",
@@ -59,10 +59,10 @@
         },
         {
           "category": "구술",
-          "total": 30,
+          "total": 100,
           "mc": 0,
           "writing": 0,
-          "oral": 30
+          "oral": 100
         }
       ]
     },

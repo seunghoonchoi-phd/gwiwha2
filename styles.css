@@ -527,9 +527,14 @@ body.exam-mode .choice.is-selected .choice__num { color: var(--navy); }
 .review-item__write.empty-ans { color: var(--muted); font-style: italic; }
 
 /* ===== 모국어 병기(보조 번역) ===== */
+/* body 의 word-break:keep-all 은 한국어 어절이 쪼개지지 말라고 건 것이다.
+   그런데 중국어·태국어는 띄어쓰기가 없어서 keep-all 이면 문장 하나가 통째로 한 단어가 되고,
+   문장부호가 없는 긴 구간(문제은행에 37자짜리도 있다)은 화면 밖으로 나가 가로 스크롤이 생긴다.
+   그래서 번역 부분에서만 keep-all 을 푼다. 여기를 body 에 걸면 한국어까지 어절이 쪼개진다. */
 .zh {
   display: block; font-size: .84em; color: var(--muted); font-weight: 400;
   margin-top: 3px; line-height: 1.45;
+  word-break: normal; overflow-wrap: anywhere;
 }
 .choice .zh { color: var(--muted); }
 body.exam-mode .question-box .zh { color: var(--muted); }

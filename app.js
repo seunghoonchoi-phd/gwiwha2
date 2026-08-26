@@ -72,7 +72,39 @@ const I18N = {
     'sg.head': '작문·구술 자가채점', 'sg.note': '작문·구술은 자유 서술이라 자동 채점이 어렵습니다. 모범답안과 비교해 직접 점수를 매기면 합계에 반영됩니다.', 'sg.prompt': '↓ 작문·구술을 직접 채점하면 점수에 반영됩니다', 'sg.good': '잘 씀', 'sg.mid': '보통', 'sg.poor': '부족', 'sg.ungraded': '미채점', 'bd.mc': '객관식', 'bd.writing': '작문', 'bd.oral': '구술', 'bd.total': '합계',
     'result.pass': '합격선(60점) 통과 🎉', 'result.fail': '합격선(60점)까지 조금 더!', 'result.practice': '연습 모드 결과입니다.',
     'result.estLevel': '예상 배정 단계: {0}',
-    'result.levelDisclaimer': '※ 이 점수는 실제 배정 점수가 아니라 <b>객관식 실력 기준 예상치</b>입니다. 실제 사전평가는 객관식(75점)+작문(2문)+구술(25점)=100점이며, 작문·구술은 사람이 채점합니다. 또한 <b>구술이 3점 미만이면 0단계</b>로 배정됩니다. 정확한 단계는 시험 당일 점수로 정해집니다.',
+    'result.levelDisclaimer': '※ 이 점수는 실제 배정 점수가 아니라 <b>연습용 예상치</b>입니다. 실제 사전평가는 <b>필기 75점(객관식 48문항 72점 + 작문 2문항 3점) + 구술 25점 = 100점</b>이며, 객관식과 작문은 여기서 자동 채점되지만 <b>구술은 직접 매겨야</b> 총점이 나옵니다. 또한 <b>구술이 3점 미만이면 0단계</b>로 배정됩니다. 정확한 단계는 시험 당일 점수로 정해집니다.',
+    'result.paperScore': '필기(객관식+작문)',
+    'result.paperOf': '{0} / {1}점',
+    'result.wAuto': '작문 자동채점 반영',
+    'sg.noteAuto': '작문은 답안 내용을 자동 채점했습니다. 구술은 자유 발화라 모범답안과 비교해 직접 매겨 주세요. 자동 점수가 마음에 들지 않으면 버튼으로 덮어쓸 수 있습니다.',
+    'sg.headOverride': '직접 다시 매기기',
+    'bd.autoTag': '자동',
+    'auto.ok': '정답입니다 ✅',
+    'auto.no': '오답입니다 ❌',
+    'auto.empty': '작성한 답안이 없습니다 ❌',
+    'result.oralFloor': '구술 3점 미만',
+    'auto.task': '과제 수행 (①②③④ 각 2.5점)',
+    'auto.checkHead': '점검 항목 (점수에 넣지 않음)',
+    'auto.len': '분량',
+    'auto.style': '문체',
+    'auto.title': '제목',
+    'auto.flow': '문장 연결',
+    'auto.w.over': '200칸을 넘습니다',
+    'auto.w.short': '조금 짧습니다',
+    'auto.w.mixed': '문체가 섞였습니다',
+    'auto.w.titled': '제목은 쓰지 않습니다',
+    'auto.capped': '분량이 모자라 점수에 상한을 두었습니다. 네 갈래를 다 다루기에는 글이 너무 짧습니다.',
+    'auto.noteNat': '※ 공식 배점은 <b>작문형 10점 = 4문항 × 2.5점</b>(법무부·한국이민재단 공개)이고, 그 안의 세부 채점 기준은 <b>법령상 비공개</b>입니다. 여기 점수는 네 갈래를 <b>다뤘는지만</b> 본 학습용 근사치이며, <b>어휘·문법의 정확성과 내용의 깊이는 채점하지 않았습니다</b>. 실제 시험은 감독관이 직접 읽고 채점합니다.',
+    'auto.notePre': '※ 실제 사전평가의 단답형 주관식은 1문항 1.5점이며, 부분점수가 있는지는 공개되어 있지 않습니다. △는 연습용 표시입니다.',
+    'auto.mid': '문법은 맞지만 표현이 아쉽습니다 △',
+    'auto.w.choppy': '문장이 너무 적습니다',
+    'auto.overNote': '200칸을 넘겼습니다. 실제 시험지는 200칸 원고지 1장뿐이라 넘긴 부분은 쓸 자리가 없습니다. 여기서도 앞 200칸까지만 채점했습니다.',
+    'style.formal': '습니다체',
+    'style.polite': '해요체',
+    'style.plain': '문어체',
+    'style.casual': '반말',
+    'auto.w.banmal': '반말은 시험 답안에 쓰지 않습니다',
+    'count.sent': '{0}문장',
     'track.nat': '귀화 종합평가', 'track.perm': '영주 종합평가', 'track.pre': '사회통합 사전평가',
     'review.unanswered': '선택 안 함', 'review.emptyWrite': '작성한 답안이 없습니다.', 'review.emptyOral': '메모한 내용이 없습니다.',
     'stats.total': '총 푼 문제', 'stats.acc': '전체 정답률', 'stats.noHistory': '아직 모의고사 기록이 없습니다.',
@@ -154,7 +186,39 @@ const I18N = {
     'sg.head': '写作·口试 自评', 'sg.note': '写作·口试是自由作答，难以自动评分。对照范文自己打分后会计入总分。', 'sg.prompt': '↓ 自评写作·口试后会计入分数', 'sg.good': '写得好', 'sg.mid': '一般', 'sg.poor': '不足', 'sg.ungraded': '未评分', 'bd.mc': '选择题', 'bd.writing': '写作', 'bd.oral': '口试', 'bd.total': '合计',
     'result.pass': '已达合格线（60分）🎉', 'result.fail': '距合格线（60分）还差一点！', 'result.practice': '这是练习模式的结果。',
     'result.estLevel': '预计分配阶段：{0}',
-    'result.levelDisclaimer': '※ 此分数并非实际分配分数，而是 <b>按选择题水平的预估值</b>。实际事前评价为 选择题(75分)+写作(2题)+口试(25分)=100分，写作·口试由人工评分。另外 <b>口试不足3分将分配到0阶段</b>。准确阶段以考试当天分数为准。',
+    'result.levelDisclaimer': '※ 此分数不是实际分配分数，而是 <b>练习用预估值</b>。实际事前评价为 <b>笔试75分（选择题48题72分 + 写作2题3分）+ 口试25分 = 100分</b>；选择题和写作在这里自动评分，但 <b>口试需要你自己打分</b>才能得出总分。另外 <b>口试不足3分则分配到0阶段</b>。准确阶段以考试当天分数为准。',
+    'result.paperScore': '笔试(选择题+写作)',
+    'result.paperOf': '{0} / {1}分',
+    'result.wAuto': '已计入写作自动评分',
+    'sg.noteAuto': '写作已按答案内容自动评分。口试是自由发挥，请对照参考答案自己打分。对自动分数不满意时，可以用按钮覆盖。',
+    'sg.headOverride': '自己重新打分',
+    'bd.autoTag': '自动',
+    'auto.ok': '答对了 ✅',
+    'auto.no': '答错了 ❌',
+    'auto.empty': '没有作答 ❌',
+    'result.oralFloor': '口试不足3分',
+    'auto.task': '任务完成度 (①②③④ 各2.5分)',
+    'auto.checkHead': '检查项 (不计入分数)',
+    'auto.len': '篇幅',
+    'auto.style': '文体',
+    'auto.title': '标题',
+    'auto.flow': '句子衔接',
+    'auto.w.over': '超过200格',
+    'auto.w.short': '略短',
+    'auto.w.mixed': '文体混用',
+    'auto.w.titled': '不要写标题',
+    'auto.capped': '篇幅不足，分数已设上限。这么短的篇幅不可能把四个小点都写到。',
+    'auto.noteNat': '※ 官方分值为 <b>写作10分 = 4题 × 2.5分</b>（法务部·韩国移民财团公开），其内部的细则评分标准 <b>依法不公开</b>。这里的分数只看四个小点 <b>有没有写到</b>，是练习用的近似值，<b>没有评判用词语法的准确性和内容的深度</b>。真实考试由监考官阅卷评分。',
+    'auto.notePre': '※ 真实事前评价的简答主观题为每题1.5分，是否有部分分数并未公开。△ 是练习用的标记。',
+    'auto.mid': '语法对了，但表达欠妥 △',
+    'auto.w.choppy': '句子太少',
+    'auto.overNote': '超过了200格。真实考试只有一张200格稿纸，超出部分没有地方可写。这里也只评了前200格。',
+    'style.formal': '습니다体',
+    'style.polite': '해요体',
+    'style.plain': '书面体',
+    'style.casual': '半语',
+    'auto.w.banmal': '考试答案不用半语',
+    'count.sent': '{0}句',
     'track.nat': '归化综合评价', 'track.perm': '永居综合评价', 'track.pre': '社会统合事前评价',
     'review.unanswered': '未作答', 'review.emptyWrite': '没有作答内容。', 'review.emptyOral': '没有记录内容。',
     'stats.total': '已做题数', 'stats.acc': '总正确率', 'stats.noHistory': '还没有模拟考试记录。',
@@ -201,8 +265,8 @@ const I18N = {
   },
 };
 /* === vi/th UI 번역 주입(빌드 외부 데이터) === */
-I18N.vi = {"app.title": "Luyện thi nhập tịch", "app.sync": "Đồng bộ", "home.mock.t": "Thi thử", "home.mock.s": "Làm bài như thi thật", "home.practice.t": "Luyện theo lĩnh vực", "home.practice.s": "Luyện theo 9 lĩnh vực", "home.writing.t": "Luyện viết · vấn đáp", "home.writing.s": "Nói · viết theo chủ đề", "home.typing.t": "Luyện gõ phím", "home.typing.s": "Gõ theo bài văn mẫu", "home.wrong.t": "Sổ câu sai", "home.stats.t": "Thống kê học tập", "home.stats.s": "Xem tỷ lệ đúng · lịch sử", "practice.title": "Luyện theo lĩnh vực", "practice.desc": "Làm từng câu rồi xem ngay đáp án · lời giải.", "practice.all": "Ngẫu nhiên toàn bộ", "exam.org": "Chương trình Hội nhập xã hội (KIIP)", "exam.title": "Đánh giá tổng hợp dùng cho nhập tịch", "exam.subtitle": "Thi thử phần thi viết", "exam.name": "Họ tên", "exam.namePh": "Nhập họ tên", "exam.no": "Số báo danh", "exam.noticeTitle": "Lưu ý", "exam.n1": "Đánh giá tổng hợp dùng cho nhập tịch gồm <b>trắc nghiệm 36 câu (65 điểm) + tự luận viết (10 điểm) + vấn đáp (25 điểm) = 100 điểm</b>, <b>đạt 60 điểm trở lên là đậu</b>.", "exam.n2": "Bài thi thử này làm <b>phần viết (trắc nghiệm + tự luận) trong 60 phút</b>, sau đó luyện tiếp <b>phần vấn đáp</b>.", "exam.n3": "Trắc nghiệm chọn một trong ①②③④, phần tự luận viết <b>trong 200 chữ</b>.", "exam.n4": "Chỉ trắc nghiệm được chấm tự động; phần viết · vấn đáp tự kiểm tra bằng đáp án mẫu · gợi ý.", "exam.n5": "Phần vấn đáp ở kỳ thi thật là một phiên riêng 10 phút. Khi hoàn thành giai đoạn 5 của Chương trình Hội nhập xã hội + thi đậu thì <b>có thể được miễn phỏng vấn nhập tịch</b>.", "common.cancel": "Hủy", "common.home": "Về trang chủ", "exam.start": "Bắt đầu thi", "quiz.prev": "← Câu trước", "quiz.next": "Câu sau →", "quiz.result": "Xem kết quả", "quiz.submit": "Nộp bài và chấm điểm", "writing.title": "Luyện viết · vấn đáp", "seg.writing": "Viết", "seg.oral": "Vấn đáp", "result.title": "Kết quả chấm điểm", "result.unit": " điểm", "result.reviewHead": "Xem lại câu hỏi", "result.retryWrong": "Làm lại chỉ những câu sai", "wrong.title": "Sổ câu sai", "wrong.desc": "Những câu đã làm sai sẽ được gom lại đây. Làm đúng thì câu đó biến khỏi danh sách.", "wrong.start": "Làm câu sai", "wrong.clear": "Xóa sổ câu sai", "stats.title": "Thống kê học tập", "stats.recentHead": "Lịch sử thi thử gần đây", "stats.reset": "Đặt lại thống kê", "writeCount.suffix": " / 200 chữ", "sync.ready": "Đã sẵn sàng · tổng {0} câu (trắc nghiệm {1})", "sync.never": "Nhấn Đồng bộ để tải về câu hỏi mới nhất.", "sync.offline": "Ngoại tuyến — tiếp tục với {0} câu đã đồng bộ lần cuối", "sync.first": "Bạn chưa tải về câu hỏi nào. Hãy kết nối Internet rồi nhấn Đồng bộ.", "sync.synced": "Đã đồng bộ về câu hỏi mới nhất · tổng {0} câu", "toast.syncing": "Đang tải câu hỏi mới nhất…", "toast.syncDone": "Đồng bộ xong! Tổng {0} câu", "toast.offline": "Hãy kiểm tra kết nối Internet. Bạn có thể tiếp tục với câu hỏi đã lưu.", "toast.syncFail": "Không tải được câu hỏi.", "bankInfo": "Phiên bản bộ câu hỏi: {0} · trắc nghiệm {1} câu · đồng bộ lần cuối: {2}", "noSync": "Không có", "wrongCount": "{0} câu sai", "cat.count": "{0} câu", "banner.mc": "【Trắc nghiệm】  {0} / {1}", "banner.writing": "【Tự luận viết】  {0} / {1}  ·  trong 200 chữ", "banner.oral": "【Vấn đáp】  {0} / {1}  ·  nói thành tiếng", "fb.correct": "Chính xác! ✅", "fb.wrong": "Sai rồi ❌  Đáp án: {0}", "write.phWrite": "Viết câu trả lời của bạn ở đây (trong 200 chữ)", "write.phOral": "Hãy trả lời thành tiếng. (Bạn có thể ghi chú ý chính — tùy chọn)", "result.frac": "Đúng {1}/{0} câu trắc nghiệm", "result.fracMore": " · Phần viết · vấn đáp hãy tự kiểm tra ở bên dưới", "sg.head": "Tự chấm viết · vấn đáp", "sg.note": "Phần viết · vấn đáp là tự luận nên khó chấm tự động. Tự chấm khi đối chiếu bài mẫu sẽ được tính vào tổng điểm.", "sg.prompt": "↓ Tự chấm viết · vấn đáp để tính vào điểm", "sg.good": "Tốt", "sg.mid": "Trung bình", "sg.poor": "Chưa đạt", "sg.ungraded": "Chưa chấm", "bd.mc": "Trắc nghiệm", "bd.writing": "Viết", "bd.oral": "Vấn đáp", "bd.total": "Tổng", "result.pass": "Đã vượt mốc đậu (60 điểm) 🎉", "result.fail": "Cố thêm chút nữa để đạt mốc đậu (60 điểm)!", "result.practice": "Đây là kết quả ở chế độ luyện tập.", "result.estLevel": "Giai đoạn xếp lớp dự kiến: {0}", "result.levelDisclaimer": "※ Điểm này không phải điểm xếp lớp thực tế mà là <b>ước tính dựa trên năng lực trắc nghiệm</b>. Đánh giá đầu vào thực tế gồm trắc nghiệm (75 điểm) + viết (2 câu) + vấn đáp (25 điểm) = 100 điểm, phần viết · vấn đáp do người chấm. Ngoài ra, <b>nếu vấn đáp dưới 3 điểm thì xếp giai đoạn 0</b>. Giai đoạn chính xác được quyết định theo điểm trong ngày thi.", "track.nat": "Đánh giá tổng hợp nhập tịch", "track.perm": "Đánh giá tổng hợp định cư", "track.pre": "Đánh giá đầu vào Hội nhập xã hội", "review.unanswered": "Chưa chọn", "review.emptyWrite": "Không có câu trả lời nào được viết.", "review.emptyOral": "Không có nội dung ghi chú nào.", "stats.total": "Tổng số câu đã làm", "stats.acc": "Tỷ lệ đúng tổng thể", "stats.noHistory": "Chưa có lịch sử thi thử nào.", "wrong.empty": "Không có câu sai nào. Bạn đang làm rất tốt! 👏", "writing.empty": "Không có câu hỏi thuộc loại này.", "guide.show": "💡 Xem gợi ý", "guide.hide": "💡 Ẩn gợi ý", "writing.draftPh": "Thử viết câu trả lời ở đây (trong 200 chữ)", "model.show": "📝 Xem đáp án mẫu", "model.hide": "📝 Ẩn đáp án mẫu", "review.model": "Đáp án mẫu", "resume.banner": "📌 Tiếp tục bài thi thử đang dở ({0}/{1})", "exam.resume": "Làm tiếp ({0}/{1})", "confirm.discardMock": "Bản ghi bài thi thử đang dở sẽ bị mất. Bắt đầu lại từ đầu chứ?", "toast.resumed": "Làm tiếp.", "resume.practice": "📌 Làm tiếp — {0} ({1}/{2})", "practice.allLabel": "Toàn bộ", "confirm.submit": "Nộp bài và chấm điểm chứ?", "confirm.clearWrong": "Xóa toàn bộ sổ câu sai chứ?", "confirm.resetStats": "Đặt lại toàn bộ thống kê và lịch sử học tập chứ?", "toast.clearedWrong": "Đã xóa sổ câu sai.", "toast.resetStats": "Đã đặt lại.", "toast.noQ": "Không có câu hỏi nào để làm. Hãy đồng bộ trước.", "toast.timeUp": "Hết giờ! Tự động chấm điểm.", "count.char": "{0} chữ", "wrong.desc2": "Những câu làm sai sẽ gom lại đây. Làm đúng <b>hai lần liên tiếp</b> thì câu đó tốt nghiệp khỏi danh sách.", "wrong.miss": "Sai {0} lần", "wrong.almost": "Đúng thêm một lần nữa là tốt nghiệp", "wrong.desc3": "Những câu làm sai sẽ gom lại đây. Đáp án được che đi; chọn phương án là chấm ngay tại chỗ. Đúng <b>hai lần liên tiếp</b> thì câu đó tốt nghiệp khỏi danh sách.", "wrong.del": "Xóa", "wrong.confirmDel": "Xóa câu này khỏi sổ câu sai chứ?", "wrong.deleted": "Đã xóa khỏi sổ câu sai.", "wrong.grad": "Tốt nghiệp! Câu này sẽ rời khỏi danh sách. 🎓", "wrong.retry": "Làm lại", "listen.head": "🎧 Nghe và nói", "listen.play": "▶ Nghe", "listen.replay": "↻ Nghe lại", "listen.stop": "■ Dừng", "listen.script": "Xem lời thoại", "listen.scriptHide": "Ẩn lời thoại", "listen.hint": "Hãy chỉ nghe âm thanh rồi trả lời trước. Nên xem lời thoại sau khi đã trả lời.", "listen.no": "Trình duyệt này không hỗ trợ phát giọng nói. Hãy xem lời thoại để luyện tập.", "examdate.title": "Đặt ngày thi", "examdate.set": "Đặt", "examdate.clear": "Xóa", "examdate.dday": "Còn {0} ngày", "examdate.today": "Đúng hôm nay", "examdate.pace": "Đề nghị mỗi ngày: {0} câu", "examdate.left": "Còn {0} câu", "examdate.past": "Ngày thi đã qua — hãy đặt ngày thi mới", "examdate.hint": "Đặt ngày thi để biết mỗi ngày nên làm bao nhiêu câu.", "result.mcScore": "Trắc nghiệm", "result.mcOf": "{0} / 65 điểm", "result.estTotal": "Tổng điểm ước tính (gồm tự chấm)", "result.estOf": "{0} / 100", "result.ungradedN": "Còn {0} câu chưa chấm — chấm xong mới ra tổng điểm", "result.mcOnly": "Chỉ trắc nghiệm {0} / 65", "stats.practiceCat": "Chỉ luyện lĩnh vực này", "practice.weak": "Ưu tiên điểm yếu", "practice.weakSub": "Lĩnh vực hay sai sẽ ra nhiều hơn", "oral.recite": "Hãy che đáp án mẫu và trả lời thành tiếng trước.", "oral.reveal": "Xem đáp án mẫu", "oral.hideModel": "Ẩn đáp án mẫu", "oral.selfHead": "Tự đánh giá", "oral.good": "Tốt", "oral.mid": "Trung bình", "oral.poor": "Chưa đạt", "oral.saved": "Đã ghi lại.", "wongoji.title": "Cách viết trên giấy có ô (bài thi thật viết trên giấy có ô)", "wongoji.body": "<ul><li>① Chữ Hàn viết mỗi ô một chữ.</li><li>② Số có từ hai chữ số trở lên và chữ cái thường viết mỗi ô 2 ký tự; số có một chữ số và chữ in hoa viết mỗi ô 1 ký tự.</li><li>③ Đầu bài và đoạn văn mới để trống ô đầu tiên, bắt đầu viết từ ô thứ hai.</li><li>④ Từ dòng thứ hai trở đi, viết kín từ ô đầu dòng, bất kể quy tắc cách chữ.</li><li>⑤ Sau dấu phẩy (,) và dấu chấm (.) không để trống ô, sau dấu chấm hỏi (?) và dấu chấm than (!) để trống một ô.</li><li>⑥ Không viết dấu câu ở ô đầu dòng mà viết cùng ô cuối của dòng trước.</li><li>⑦ Các cách diễn đạt như '수 있다/없다' (có thể/không thể), '것 같다' (hình như), số đếm tiếng Hàn với danh từ đơn vị (ví dụ '세 명')... đều phải cách chữ (để trống ô).</li></ul>"};
-I18N.th = {"app.title": "ฝึกสอบแปลงสัญชาติ", "app.sync": "ซิงค์", "home.mock.t": "ทำข้อสอบจำลอง", "home.mock.s": "ทำเหมือนสอบจริง", "home.practice.t": "ฝึกแยกตามหมวด", "home.practice.s": "ฝึกตาม 9 หมวด", "home.writing.t": "ฝึกเขียน·พูด", "home.writing.s": "พูด·เขียนตามหัวข้อ", "home.typing.t": "ฝึกพิมพ์", "home.typing.s": "พิมพ์ตามเรียงความตัวอย่าง", "home.wrong.t": "สมุดข้อผิด", "home.stats.t": "สถิติการเรียน", "home.stats.s": "ดูอัตราถูก·ประวัติ", "practice.title": "ฝึกแยกตามหมวด", "practice.desc": "ทำทีละข้อแล้วดูเฉลย·คำอธิบายได้ทันที", "practice.all": "สุ่มทั้งหมด", "exam.org": "โครงการบูรณาการสังคม (KIIP)", "exam.title": "การประเมินรวมเพื่อแปลงสัญชาติ", "exam.subtitle": "ข้อสอบจำลองภาคข้อเขียน", "exam.name": "ชื่อ", "exam.namePh": "กรอกชื่อ", "exam.no": "เลขที่นั่งสอบ", "exam.noticeTitle": "ข้อควรทราบ", "exam.n1": "การประเมินรวมเพื่อแปลงสัญชาติคือ <b>ปรนัย 36 ข้อ (65 คะแนน) + เขียน (10 คะแนน) + พูด (25 คะแนน) = 100 คะแนน</b>, <b>ได้ 60 คะแนนขึ้นไปถือว่าผ่าน</b>", "exam.n2": "ข้อสอบจำลองนี้ให้ทำ <b>ภาคข้อเขียน (ปรนัย+เขียน) ภายใน 60 นาที</b> แล้วฝึก <b>ข้อสอบพูด</b> ต่อ", "exam.n3": "ปรนัยให้เลือกหนึ่งข้อจาก ①②③④ ส่วนการเขียนให้เขียน <b>ไม่เกิน 200 ตัวอักษร</b>", "exam.n4": "ตรวจคะแนนอัตโนมัติเฉพาะปรนัย ส่วนเขียน·พูดให้ตรวจสอบด้วยตนเองจากคำตอบตัวอย่าง·คำแนะนำ", "exam.n5": "การพูดในสอบจริงเป็นช่วงแยกต่างหาก 10 นาที เมื่อจบโครงการบูรณาการสังคมระดับ 5 + สอบผ่าน จะ <b>ได้รับการยกเว้นการสัมภาษณ์แปลงสัญชาติ</b>", "common.cancel": "ยกเลิก", "common.home": "กลับหน้าหลัก", "exam.start": "เริ่มสอบ", "quiz.prev": "← ก่อนหน้า", "quiz.next": "ถัดไป →", "quiz.result": "ดูผล", "quiz.submit": "ส่งและตรวจคะแนน", "writing.title": "ฝึกเขียน·พูด", "seg.writing": "เขียน", "seg.oral": "พูด", "result.title": "ผลการตรวจคะแนน", "result.unit": "คะแนน", "result.reviewHead": "ดูข้อสอบอีกครั้ง", "result.retryWrong": "ทำเฉพาะข้อที่ผิดอีกครั้ง", "wrong.title": "สมุดข้อผิด", "wrong.desc": "ข้อที่ตอบผิดจะถูกรวบรวมไว้ที่นี่ เมื่อตอบถูกจะหายไปจากรายการ", "wrong.start": "ทำข้อที่ผิด", "wrong.clear": "ล้างสมุดข้อผิด", "stats.title": "สถิติการเรียน", "stats.recentHead": "ประวัติข้อสอบจำลองล่าสุด", "stats.reset": "รีเซ็ตสถิติ", "writeCount.suffix": " / 200 ตัวอักษร", "sync.ready": "พร้อมแล้ว · ทั้งหมด {0} ข้อ (ปรนัย {1})", "sync.never": "กดซิงค์เพื่อรับข้อสอบล่าสุด", "sync.offline": "ออฟไลน์ — ดำเนินการด้วย {0} ข้อจากการซิงค์ครั้งล่าสุด", "sync.first": "ยังไม่ได้รับข้อสอบ กรุณาเชื่อมต่ออินเทอร์เน็ตแล้วกดซิงค์", "sync.synced": "ซิงค์เป็นข้อสอบล่าสุดแล้ว · ทั้งหมด {0} ข้อ", "toast.syncing": "กำลังรับข้อสอบล่าสุด…", "toast.syncDone": "ซิงค์เสร็จแล้ว! ทั้งหมด {0} ข้อ", "toast.offline": "กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต คุณสามารถทำต่อด้วยข้อสอบที่บันทึกไว้ได้", "toast.syncFail": "ไม่สามารถรับข้อสอบได้", "bankInfo": "เวอร์ชันคลังข้อสอบ: {0} · ปรนัย {1} ข้อ · ซิงค์ล่าสุด: {2}", "noSync": "ไม่มี", "wrongCount": "ข้อที่ผิด {0} ข้อ", "cat.count": "{0} ข้อ", "banner.mc": "【ปรนัย】  {0} / {1}", "banner.writing": "【เขียน】  {0} / {1}  ·  ไม่เกิน 200 ตัวอักษร", "banner.oral": "【พูด】  {0} / {1}  ·  พูดออกเสียง", "fb.correct": "ตอบถูก! ✅", "fb.wrong": "ตอบผิด ❌  คำตอบที่ถูก: {0}", "write.phWrite": "เขียนคำตอบของคุณที่นี่ (ไม่เกิน 200 ตัวอักษร)", "write.phOral": "ลองพูดตอบออกเสียงดู (จะจดประเด็นสำคัญไว้ก็ได้ — ไม่บังคับ)", "result.frac": "ตอบถูก {1} ข้อ จากปรนัย {0} ข้อ", "result.fracMore": " · เขียน·พูดให้ตรวจสอบเองด้านล่าง", "sg.head": "ประเมินตนเอง เขียน·พูด", "sg.note": "เขียน·พูดเป็นการตอบอิสระ จึงให้คะแนนอัตโนมัติได้ยาก ประเมินตนเองโดยเทียบกับคำตอบตัวอย่างแล้วจะรวมในคะแนนรวม", "sg.prompt": "↓ ประเมินเขียน·พูดเองเพื่อรวมในคะแนน", "sg.good": "ดี", "sg.mid": "พอใช้", "sg.poor": "ยังไม่ดี", "sg.ungraded": "ยังไม่ประเมิน", "bd.mc": "ปรนัย", "bd.writing": "เขียน", "bd.oral": "พูด", "bd.total": "รวม", "result.pass": "ผ่านเกณฑ์ (60 คะแนน) 🎉", "result.fail": "อีกนิดเดียวก็ถึงเกณฑ์ (60 คะแนน)!", "result.practice": "นี่คือผลในโหมดฝึก", "result.estLevel": "ระดับที่คาดว่าจะได้รับการจัด: {0}", "result.levelDisclaimer": "※ คะแนนนี้ไม่ใช่คะแนนจัดระดับจริง แต่เป็น <b>ค่าประมาณตามความสามารถปรนัย</b> การประเมินเบื้องต้นจริงคือ ปรนัย (75 คะแนน)+เขียน (2 ข้อ)+พูด (25 คะแนน)=100 คะแนน โดยเขียน·พูดตรวจโดยคน นอกจากนี้ <b>หากพูดได้ต่ำกว่า 3 คะแนนจะถูกจัดเป็นระดับ 0</b> ระดับที่แน่นอนจะกำหนดจากคะแนนในวันสอบ", "track.nat": "การประเมินรวมแปลงสัญชาติ", "track.perm": "การประเมินรวมถิ่นที่อยู่ถาวร", "track.pre": "การประเมินเบื้องต้นบูรณาการสังคม", "review.unanswered": "ไม่ได้เลือก", "review.emptyWrite": "ไม่มีคำตอบที่เขียนไว้", "review.emptyOral": "ไม่มีเนื้อหาที่จดไว้", "stats.total": "ข้อที่ทำทั้งหมด", "stats.acc": "อัตราถูกรวม", "stats.noHistory": "ยังไม่มีประวัติข้อสอบจำลอง", "wrong.empty": "ไม่มีข้อที่ผิด ทำได้ดีมาก! 👏", "writing.empty": "ไม่มีข้อสอบประเภทนี้", "guide.show": "💡 ดูคำแนะนำ", "guide.hide": "💡 ซ่อนคำแนะนำ", "writing.draftPh": "ลองเขียนคำตอบที่นี่ (ไม่เกิน 200 ตัวอักษร)", "model.show": "📝 ดูคำตอบตัวอย่าง", "model.hide": "📝 ซ่อนคำตอบตัวอย่าง", "review.model": "คำตอบตัวอย่าง", "resume.banner": "📌 ทำข้อสอบจำลองที่ค้างไว้ต่อ ({0}/{1})", "exam.resume": "ทำต่อ ({0}/{1})", "confirm.discardMock": "ประวัติข้อสอบจำลองที่ทำค้างไว้จะหายไป จะเริ่มใหม่หรือไม่?", "toast.resumed": "ทำต่อจากเดิม", "resume.practice": "📌 ทำต่อ — {0} ({1}/{2})", "practice.allLabel": "ทั้งหมด", "confirm.submit": "จะส่งและตรวจคะแนนหรือไม่?", "confirm.clearWrong": "จะล้างสมุดข้อผิดทั้งหมดหรือไม่?", "confirm.resetStats": "จะรีเซ็ตสถิติและประวัติการเรียนทั้งหมดหรือไม่?", "toast.clearedWrong": "ล้างสมุดข้อผิดแล้ว", "toast.resetStats": "รีเซ็ตแล้ว", "toast.noQ": "ไม่มีข้อสอบให้ทำ กรุณาซิงค์ก่อน", "toast.timeUp": "หมดเวลา! ตรวจคะแนนอัตโนมัติ", "count.char": "{0} ตัวอักษร", "wrong.desc2": "ข้อที่ตอบผิดจะถูกรวบรวมไว้ที่นี่ ตอบถูก <b>สองครั้งติดต่อกัน</b> ก็จะจบการศึกษาออกจากรายการ", "wrong.miss": "ผิด {0} ครั้ง", "wrong.almost": "ตอบถูกอีกครั้งก็จบการศึกษา", "wrong.desc3": "ข้อที่ตอบผิดจะถูกรวบรวมไว้ที่นี่ คำตอบถูกซ่อนไว้ เลือกตัวเลือกแล้วตรวจคะแนนทันที ตอบถูก <b>สองครั้งติดต่อกัน</b> ก็จะจบการศึกษาออกจากรายการ", "wrong.del": "ลบ", "wrong.confirmDel": "จะลบข้อนี้ออกจากสมุดข้อผิดหรือไม่?", "wrong.deleted": "ลบออกจากสมุดข้อผิดแล้ว", "wrong.grad": "จบการศึกษา! ข้อนี้จะออกจากรายการ 🎓", "wrong.retry": "ทำอีกครั้ง", "listen.head": "🎧 ฟังแล้วพูด", "listen.play": "▶ ฟัง", "listen.replay": "↻ ฟังอีกครั้ง", "listen.stop": "■ หยุด", "listen.script": "ดูบทพูด", "listen.scriptHide": "ซ่อนบทพูด", "listen.hint": "ลองฟังเฉพาะเสียงแล้วตอบก่อน ควรดูบทพูดหลังจากตอบแล้ว", "listen.no": "เบราว์เซอร์นี้ไม่รองรับการเล่นเสียง กรุณาดูบทพูดเพื่อฝึกซ้อม", "examdate.title": "ตั้งวันสอบ", "examdate.set": "ตั้งค่า", "examdate.clear": "ล้าง", "examdate.dday": "เหลือ {0} วัน", "examdate.today": "วันนี้เลย", "examdate.pace": "แนะนำต่อวัน: {0} ข้อ", "examdate.left": "เหลือ {0} ข้อ", "examdate.past": "เลยวันสอบแล้ว — กรุณาตั้งวันสอบใหม่", "examdate.hint": "ตั้งวันสอบแล้วจะบอกว่าแต่ละวันควรทำกี่ข้อ", "result.mcScore": "ปรนัย", "result.mcOf": "{0} / 65 คะแนน", "result.estTotal": "คะแนนรวมโดยประมาณ (รวมประเมินตนเอง)", "result.estOf": "{0} / 100", "result.ungradedN": "ยังไม่ประเมิน {0} ข้อ — ประเมินแล้วจึงจะได้คะแนนรวม", "result.mcOnly": "เฉพาะปรนัย {0} / 65", "stats.practiceCat": "ฝึกเฉพาะหมวดนี้", "practice.weak": "เน้นจุดอ่อน", "practice.weakSub": "หมวดที่ผิดบ่อยจะออกบ่อยขึ้น", "oral.recite": "กรุณาปิดคำตอบตัวอย่างแล้วลองพูดตอบออกเสียงก่อน", "oral.reveal": "ดูคำตอบตัวอย่าง", "oral.hideModel": "ซ่อนคำตอบตัวอย่าง", "oral.selfHead": "ประเมินตนเอง", "oral.good": "ดี", "oral.mid": "พอใช้", "oral.poor": "ยังไม่ดี", "oral.saved": "บันทึกแล้ว", "wongoji.title": "วิธีเขียนบนกระดาษคำตอบแบบช่อง (สอบจริงเขียนบนกระดาษแบบช่อง)", "wongoji.body": "<ul><li>① เขียนอักษรเกาหลี 1 ตัวต่อ 1 ช่อง</li><li>② ตัวเลขตั้งแต่ 2 หลักขึ้นไปและตัวอักษรพิมพ์เล็กเขียน 2 ตัวต่อ 1 ช่อง ส่วนตัวเลข 1 หลักและตัวพิมพ์ใหญ่เขียน 1 ตัวต่อ 1 ช่อง</li><li>③ ต้นเรื่องและย่อหน้าใหม่ให้เว้นช่องแรกไว้ แล้วเริ่มเขียนจากช่องที่สอง</li><li>④ ตั้งแต่บรรทัดที่สองเป็นต้นไป ให้เขียนเต็มตั้งแต่ช่องแรกของบรรทัด โดยไม่ต้องเว้นวรรค</li><li>⑤ หลังเครื่องหมายจุลภาค(,)และมหัพภาค(.)ไม่ต้องเว้นช่อง ส่วนหลังเครื่องหมายคำถาม(?)และอัศเจรีย์(!)ให้เว้น 1 ช่อง</li><li>⑥ ไม่เขียนเครื่องหมายวรรคตอนในช่องแรกของบรรทัด แต่ให้เขียนรวมไว้ในช่องสุดท้ายของบรรทัดก่อนหน้า</li><li>⑦ คำว่า '수 있다/없다' (สามารถ/ไม่สามารถ), '것 같다' (ดูเหมือนว่า), ตัวเลขภาษาเกาหลีกับคำลักษณนาม (เช่น '세 명') ฯลฯ ให้เว้นวรรค</li></ul>"};
+I18N.vi = {"app.title": "Luyện thi nhập tịch", "app.sync": "Đồng bộ", "home.mock.t": "Thi thử", "home.mock.s": "Làm bài như thi thật", "home.practice.t": "Luyện theo lĩnh vực", "home.practice.s": "Luyện theo 9 lĩnh vực", "home.writing.t": "Luyện viết · vấn đáp", "home.writing.s": "Nói · viết theo chủ đề", "home.typing.t": "Luyện gõ phím", "home.typing.s": "Gõ theo bài văn mẫu", "home.wrong.t": "Sổ câu sai", "home.stats.t": "Thống kê học tập", "home.stats.s": "Xem tỷ lệ đúng · lịch sử", "practice.title": "Luyện theo lĩnh vực", "practice.desc": "Làm từng câu rồi xem ngay đáp án · lời giải.", "practice.all": "Ngẫu nhiên toàn bộ", "exam.org": "Chương trình Hội nhập xã hội (KIIP)", "exam.title": "Đánh giá tổng hợp dùng cho nhập tịch", "exam.subtitle": "Thi thử phần thi viết", "exam.name": "Họ tên", "exam.namePh": "Nhập họ tên", "exam.no": "Số báo danh", "exam.noticeTitle": "Lưu ý", "exam.n1": "Đánh giá tổng hợp dùng cho nhập tịch gồm <b>trắc nghiệm 36 câu (65 điểm) + tự luận viết (10 điểm) + vấn đáp (25 điểm) = 100 điểm</b>, <b>đạt 60 điểm trở lên là đậu</b>.", "exam.n2": "Bài thi thử này làm <b>phần viết (trắc nghiệm + tự luận) trong 60 phút</b>, sau đó luyện tiếp <b>phần vấn đáp</b>.", "exam.n3": "Trắc nghiệm chọn một trong ①②③④, phần tự luận viết <b>trong 200 chữ</b>.", "exam.n4": "Chỉ trắc nghiệm được chấm tự động; phần viết · vấn đáp tự kiểm tra bằng đáp án mẫu · gợi ý.", "exam.n5": "Phần vấn đáp ở kỳ thi thật là một phiên riêng 10 phút. Khi hoàn thành giai đoạn 5 của Chương trình Hội nhập xã hội + thi đậu thì <b>có thể được miễn phỏng vấn nhập tịch</b>.", "common.cancel": "Hủy", "common.home": "Về trang chủ", "exam.start": "Bắt đầu thi", "quiz.prev": "← Câu trước", "quiz.next": "Câu sau →", "quiz.result": "Xem kết quả", "quiz.submit": "Nộp bài và chấm điểm", "writing.title": "Luyện viết · vấn đáp", "seg.writing": "Viết", "seg.oral": "Vấn đáp", "result.title": "Kết quả chấm điểm", "result.unit": " điểm", "result.reviewHead": "Xem lại câu hỏi", "result.retryWrong": "Làm lại chỉ những câu sai", "wrong.title": "Sổ câu sai", "wrong.desc": "Những câu đã làm sai sẽ được gom lại đây. Làm đúng thì câu đó biến khỏi danh sách.", "wrong.start": "Làm câu sai", "wrong.clear": "Xóa sổ câu sai", "stats.title": "Thống kê học tập", "stats.recentHead": "Lịch sử thi thử gần đây", "stats.reset": "Đặt lại thống kê", "writeCount.suffix": " / 200 chữ", "sync.ready": "Đã sẵn sàng · tổng {0} câu (trắc nghiệm {1})", "sync.never": "Nhấn Đồng bộ để tải về câu hỏi mới nhất.", "sync.offline": "Ngoại tuyến — tiếp tục với {0} câu đã đồng bộ lần cuối", "sync.first": "Bạn chưa tải về câu hỏi nào. Hãy kết nối Internet rồi nhấn Đồng bộ.", "sync.synced": "Đã đồng bộ về câu hỏi mới nhất · tổng {0} câu", "toast.syncing": "Đang tải câu hỏi mới nhất…", "toast.syncDone": "Đồng bộ xong! Tổng {0} câu", "toast.offline": "Hãy kiểm tra kết nối Internet. Bạn có thể tiếp tục với câu hỏi đã lưu.", "toast.syncFail": "Không tải được câu hỏi.", "bankInfo": "Phiên bản bộ câu hỏi: {0} · trắc nghiệm {1} câu · đồng bộ lần cuối: {2}", "noSync": "Không có", "wrongCount": "{0} câu sai", "cat.count": "{0} câu", "banner.mc": "【Trắc nghiệm】  {0} / {1}", "banner.writing": "【Tự luận viết】  {0} / {1}  ·  trong 200 chữ", "banner.oral": "【Vấn đáp】  {0} / {1}  ·  nói thành tiếng", "fb.correct": "Chính xác! ✅", "fb.wrong": "Sai rồi ❌  Đáp án: {0}", "write.phWrite": "Viết câu trả lời của bạn ở đây (trong 200 chữ)", "write.phOral": "Hãy trả lời thành tiếng. (Bạn có thể ghi chú ý chính — tùy chọn)", "result.frac": "Đúng {1}/{0} câu trắc nghiệm", "result.fracMore": " · Phần viết · vấn đáp hãy tự kiểm tra ở bên dưới", "sg.head": "Tự chấm viết · vấn đáp", "sg.note": "Phần viết · vấn đáp là tự luận nên khó chấm tự động. Tự chấm khi đối chiếu bài mẫu sẽ được tính vào tổng điểm.", "sg.prompt": "↓ Tự chấm viết · vấn đáp để tính vào điểm", "sg.good": "Tốt", "sg.mid": "Trung bình", "sg.poor": "Chưa đạt", "sg.ungraded": "Chưa chấm", "bd.mc": "Trắc nghiệm", "bd.writing": "Viết", "bd.oral": "Vấn đáp", "bd.total": "Tổng", "result.pass": "Đã vượt mốc đậu (60 điểm) 🎉", "result.fail": "Cố thêm chút nữa để đạt mốc đậu (60 điểm)!", "result.practice": "Đây là kết quả ở chế độ luyện tập.", "result.estLevel": "Giai đoạn xếp lớp dự kiến: {0}", "result.levelDisclaimer": "※ Điểm này không phải điểm xếp lớp thực tế mà là <b>ước tính dựa trên năng lực trắc nghiệm</b>. Đánh giá đầu vào thực tế gồm trắc nghiệm (75 điểm) + viết (2 câu) + vấn đáp (25 điểm) = 100 điểm, phần viết · vấn đáp do người chấm. Ngoài ra, <b>nếu vấn đáp dưới 3 điểm thì xếp giai đoạn 0</b>. Giai đoạn chính xác được quyết định theo điểm trong ngày thi.", "track.nat": "Đánh giá tổng hợp nhập tịch", "track.perm": "Đánh giá tổng hợp định cư", "track.pre": "Đánh giá đầu vào Hội nhập xã hội", "review.unanswered": "Chưa chọn", "review.emptyWrite": "Không có câu trả lời nào được viết.", "review.emptyOral": "Không có nội dung ghi chú nào.", "stats.total": "Tổng số câu đã làm", "stats.acc": "Tỷ lệ đúng tổng thể", "stats.noHistory": "Chưa có lịch sử thi thử nào.", "wrong.empty": "Không có câu sai nào. Bạn đang làm rất tốt! 👏", "writing.empty": "Không có câu hỏi thuộc loại này.", "guide.show": "💡 Xem gợi ý", "guide.hide": "💡 Ẩn gợi ý", "writing.draftPh": "Thử viết câu trả lời ở đây (trong 200 chữ)", "model.show": "📝 Xem đáp án mẫu", "model.hide": "📝 Ẩn đáp án mẫu", "review.model": "Đáp án mẫu", "resume.banner": "📌 Tiếp tục bài thi thử đang dở ({0}/{1})", "exam.resume": "Làm tiếp ({0}/{1})", "confirm.discardMock": "Bản ghi bài thi thử đang dở sẽ bị mất. Bắt đầu lại từ đầu chứ?", "toast.resumed": "Làm tiếp.", "resume.practice": "📌 Làm tiếp — {0} ({1}/{2})", "practice.allLabel": "Toàn bộ", "confirm.submit": "Nộp bài và chấm điểm chứ?", "confirm.clearWrong": "Xóa toàn bộ sổ câu sai chứ?", "confirm.resetStats": "Đặt lại toàn bộ thống kê và lịch sử học tập chứ?", "toast.clearedWrong": "Đã xóa sổ câu sai.", "toast.resetStats": "Đã đặt lại.", "toast.noQ": "Không có câu hỏi nào để làm. Hãy đồng bộ trước.", "toast.timeUp": "Hết giờ! Tự động chấm điểm.", "count.char": "{0} chữ", "wrong.desc2": "Những câu làm sai sẽ gom lại đây. Làm đúng <b>hai lần liên tiếp</b> thì câu đó tốt nghiệp khỏi danh sách.", "wrong.miss": "Sai {0} lần", "wrong.almost": "Đúng thêm một lần nữa là tốt nghiệp", "wrong.desc3": "Những câu làm sai sẽ gom lại đây. Đáp án được che đi; chọn phương án là chấm ngay tại chỗ. Đúng <b>hai lần liên tiếp</b> thì câu đó tốt nghiệp khỏi danh sách.", "wrong.del": "Xóa", "wrong.confirmDel": "Xóa câu này khỏi sổ câu sai chứ?", "wrong.deleted": "Đã xóa khỏi sổ câu sai.", "wrong.grad": "Tốt nghiệp! Câu này sẽ rời khỏi danh sách. 🎓", "wrong.retry": "Làm lại", "listen.head": "🎧 Nghe và nói", "listen.play": "▶ Nghe", "listen.replay": "↻ Nghe lại", "listen.stop": "■ Dừng", "listen.script": "Xem lời thoại", "listen.scriptHide": "Ẩn lời thoại", "listen.hint": "Hãy chỉ nghe âm thanh rồi trả lời trước. Nên xem lời thoại sau khi đã trả lời.", "listen.no": "Trình duyệt này không hỗ trợ phát giọng nói. Hãy xem lời thoại để luyện tập.", "examdate.title": "Đặt ngày thi", "examdate.set": "Đặt", "examdate.clear": "Xóa", "examdate.dday": "Còn {0} ngày", "examdate.today": "Đúng hôm nay", "examdate.pace": "Đề nghị mỗi ngày: {0} câu", "examdate.left": "Còn {0} câu", "examdate.past": "Ngày thi đã qua — hãy đặt ngày thi mới", "examdate.hint": "Đặt ngày thi để biết mỗi ngày nên làm bao nhiêu câu.", "result.mcScore": "Trắc nghiệm", "result.mcOf": "{0} / 65 điểm", "result.estTotal": "Tổng điểm ước tính (gồm tự chấm)", "result.estOf": "{0} / 100", "result.ungradedN": "Còn {0} câu chưa chấm — chấm xong mới ra tổng điểm", "result.mcOnly": "Chỉ trắc nghiệm {0} / 65", "stats.practiceCat": "Chỉ luyện lĩnh vực này", "practice.weak": "Ưu tiên điểm yếu", "practice.weakSub": "Lĩnh vực hay sai sẽ ra nhiều hơn", "oral.recite": "Hãy che đáp án mẫu và trả lời thành tiếng trước.", "oral.reveal": "Xem đáp án mẫu", "oral.hideModel": "Ẩn đáp án mẫu", "oral.selfHead": "Tự đánh giá", "oral.good": "Tốt", "oral.mid": "Trung bình", "oral.poor": "Chưa đạt", "oral.saved": "Đã ghi lại.", "wongoji.title": "Cách viết trên giấy có ô (bài thi thật viết trên giấy có ô)", "wongoji.body": "<ul><li>① Chữ Hàn viết mỗi ô một chữ.</li><li>② Số có từ hai chữ số trở lên và chữ cái thường viết mỗi ô 2 ký tự; số có một chữ số và chữ in hoa viết mỗi ô 1 ký tự.</li><li>③ Đầu bài và đoạn văn mới để trống ô đầu tiên, bắt đầu viết từ ô thứ hai.</li><li>④ Từ dòng thứ hai trở đi, viết kín từ ô đầu dòng, bất kể quy tắc cách chữ.</li><li>⑤ Sau dấu phẩy (,) và dấu chấm (.) không để trống ô, sau dấu chấm hỏi (?) và dấu chấm than (!) để trống một ô.</li><li>⑥ Không viết dấu câu ở ô đầu dòng mà viết cùng ô cuối của dòng trước.</li><li>⑦ Các cách diễn đạt như '수 있다/없다' (có thể/không thể), '것 같다' (hình như), số đếm tiếng Hàn với danh từ đơn vị (ví dụ '세 명')... đều phải cách chữ (để trống ô).</li></ul>", "result.paperScore": "Phần viết (trắc nghiệm + tự luận)", "result.paperOf": "{0} / {1} điểm", "result.wAuto": "Đã tính điểm tự luận chấm tự động", "sg.noteAuto": "Phần viết đã được chấm tự động theo nội dung bài làm. Phần vấn đáp là nói tự do nên hãy tự chấm khi đối chiếu bài mẫu. Nếu không hài lòng với điểm tự động, bạn có thể ghi đè bằng các nút bên dưới.", "sg.headOverride": "Tự chấm lại", "bd.autoTag": "tự động", "auto.ok": "Chính xác ✅", "auto.mid": "Đúng ngữ pháp nhưng cách diễn đạt chưa ổn △", "auto.no": "Sai rồi ❌", "auto.empty": "Không có bài làm ❌", "auto.task": "Thực hiện yêu cầu (①②③④ mỗi ý 2,5 điểm)", "auto.len": "Độ dài", "auto.style": "Văn phong", "result.oralFloor": "Vấn đáp dưới 3 điểm", "auto.checkHead": "Mục kiểm tra (không tính điểm)", "auto.title": "Tiêu đề", "auto.flow": "Liên kết câu", "auto.w.over": "Vượt quá 200 ô", "auto.w.short": "Hơi ngắn", "auto.w.mixed": "Lẫn lộn văn phong", "auto.w.titled": "Không viết tiêu đề", "auto.capped": "Bài quá ngắn nên điểm đã bị giới hạn. Với độ dài này không thể viết đủ bốn ý.", "auto.noteNat": "※ Thang điểm chính thức là <b>tự luận viết 10 điểm = 4 câu × 2,5 điểm</b> (Bộ Tư pháp · Quỹ Di trú Hàn Quốc công bố), còn tiêu chí chấm chi tiết bên trong thì <b>không được công khai theo quy định</b>. Điểm ở đây chỉ xét bạn <b>có đề cập</b> đủ bốn ý hay không, là giá trị gần đúng để luyện tập, <b>không chấm độ chính xác của từ vựng · ngữ pháp và chiều sâu nội dung</b>. Kỳ thi thật do giám thị trực tiếp đọc và chấm.", "auto.notePre": "※ Câu tự luận ngắn của kỳ đánh giá đầu vào thật là 1,5 điểm mỗi câu, và việc có điểm thành phần hay không thì không được công bố. Dấu △ chỉ là ký hiệu dùng khi luyện tập.", "auto.w.choppy": "Quá ít câu", "auto.overNote": "Bạn đã viết quá 200 ô. Bài thi thật chỉ có một tờ giấy ô 200 ô nên phần vượt quá không có chỗ để viết. Ở đây cũng chỉ chấm đến ô thứ 200.", "style.formal": "Thể -seumnida", "style.polite": "Thể -haeyo", "style.plain": "Thể viết", "style.casual": "Thể thân mật", "auto.w.banmal": "Không dùng thể thân mật trong bài thi", "count.sent": "{0} câu"};
+I18N.th = {"app.title": "ฝึกสอบแปลงสัญชาติ", "app.sync": "ซิงค์", "home.mock.t": "ทำข้อสอบจำลอง", "home.mock.s": "ทำเหมือนสอบจริง", "home.practice.t": "ฝึกแยกตามหมวด", "home.practice.s": "ฝึกตาม 9 หมวด", "home.writing.t": "ฝึกเขียน·พูด", "home.writing.s": "พูด·เขียนตามหัวข้อ", "home.typing.t": "ฝึกพิมพ์", "home.typing.s": "พิมพ์ตามเรียงความตัวอย่าง", "home.wrong.t": "สมุดข้อผิด", "home.stats.t": "สถิติการเรียน", "home.stats.s": "ดูอัตราถูก·ประวัติ", "practice.title": "ฝึกแยกตามหมวด", "practice.desc": "ทำทีละข้อแล้วดูเฉลย·คำอธิบายได้ทันที", "practice.all": "สุ่มทั้งหมด", "exam.org": "โครงการบูรณาการสังคม (KIIP)", "exam.title": "การประเมินรวมเพื่อแปลงสัญชาติ", "exam.subtitle": "ข้อสอบจำลองภาคข้อเขียน", "exam.name": "ชื่อ", "exam.namePh": "กรอกชื่อ", "exam.no": "เลขที่นั่งสอบ", "exam.noticeTitle": "ข้อควรทราบ", "exam.n1": "การประเมินรวมเพื่อแปลงสัญชาติคือ <b>ปรนัย 36 ข้อ (65 คะแนน) + เขียน (10 คะแนน) + พูด (25 คะแนน) = 100 คะแนน</b>, <b>ได้ 60 คะแนนขึ้นไปถือว่าผ่าน</b>", "exam.n2": "ข้อสอบจำลองนี้ให้ทำ <b>ภาคข้อเขียน (ปรนัย+เขียน) ภายใน 60 นาที</b> แล้วฝึก <b>ข้อสอบพูด</b> ต่อ", "exam.n3": "ปรนัยให้เลือกหนึ่งข้อจาก ①②③④ ส่วนการเขียนให้เขียน <b>ไม่เกิน 200 ตัวอักษร</b>", "exam.n4": "ตรวจคะแนนอัตโนมัติเฉพาะปรนัย ส่วนเขียน·พูดให้ตรวจสอบด้วยตนเองจากคำตอบตัวอย่าง·คำแนะนำ", "exam.n5": "การพูดในสอบจริงเป็นช่วงแยกต่างหาก 10 นาที เมื่อจบโครงการบูรณาการสังคมระดับ 5 + สอบผ่าน จะ <b>ได้รับการยกเว้นการสัมภาษณ์แปลงสัญชาติ</b>", "common.cancel": "ยกเลิก", "common.home": "กลับหน้าหลัก", "exam.start": "เริ่มสอบ", "quiz.prev": "← ก่อนหน้า", "quiz.next": "ถัดไป →", "quiz.result": "ดูผล", "quiz.submit": "ส่งและตรวจคะแนน", "writing.title": "ฝึกเขียน·พูด", "seg.writing": "เขียน", "seg.oral": "พูด", "result.title": "ผลการตรวจคะแนน", "result.unit": "คะแนน", "result.reviewHead": "ดูข้อสอบอีกครั้ง", "result.retryWrong": "ทำเฉพาะข้อที่ผิดอีกครั้ง", "wrong.title": "สมุดข้อผิด", "wrong.desc": "ข้อที่ตอบผิดจะถูกรวบรวมไว้ที่นี่ เมื่อตอบถูกจะหายไปจากรายการ", "wrong.start": "ทำข้อที่ผิด", "wrong.clear": "ล้างสมุดข้อผิด", "stats.title": "สถิติการเรียน", "stats.recentHead": "ประวัติข้อสอบจำลองล่าสุด", "stats.reset": "รีเซ็ตสถิติ", "writeCount.suffix": " / 200 ตัวอักษร", "sync.ready": "พร้อมแล้ว · ทั้งหมด {0} ข้อ (ปรนัย {1})", "sync.never": "กดซิงค์เพื่อรับข้อสอบล่าสุด", "sync.offline": "ออฟไลน์ — ดำเนินการด้วย {0} ข้อจากการซิงค์ครั้งล่าสุด", "sync.first": "ยังไม่ได้รับข้อสอบ กรุณาเชื่อมต่ออินเทอร์เน็ตแล้วกดซิงค์", "sync.synced": "ซิงค์เป็นข้อสอบล่าสุดแล้ว · ทั้งหมด {0} ข้อ", "toast.syncing": "กำลังรับข้อสอบล่าสุด…", "toast.syncDone": "ซิงค์เสร็จแล้ว! ทั้งหมด {0} ข้อ", "toast.offline": "กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต คุณสามารถทำต่อด้วยข้อสอบที่บันทึกไว้ได้", "toast.syncFail": "ไม่สามารถรับข้อสอบได้", "bankInfo": "เวอร์ชันคลังข้อสอบ: {0} · ปรนัย {1} ข้อ · ซิงค์ล่าสุด: {2}", "noSync": "ไม่มี", "wrongCount": "ข้อที่ผิด {0} ข้อ", "cat.count": "{0} ข้อ", "banner.mc": "【ปรนัย】  {0} / {1}", "banner.writing": "【เขียน】  {0} / {1}  ·  ไม่เกิน 200 ตัวอักษร", "banner.oral": "【พูด】  {0} / {1}  ·  พูดออกเสียง", "fb.correct": "ตอบถูก! ✅", "fb.wrong": "ตอบผิด ❌  คำตอบที่ถูก: {0}", "write.phWrite": "เขียนคำตอบของคุณที่นี่ (ไม่เกิน 200 ตัวอักษร)", "write.phOral": "ลองพูดตอบออกเสียงดู (จะจดประเด็นสำคัญไว้ก็ได้ — ไม่บังคับ)", "result.frac": "ตอบถูก {1} ข้อ จากปรนัย {0} ข้อ", "result.fracMore": " · เขียน·พูดให้ตรวจสอบเองด้านล่าง", "sg.head": "ประเมินตนเอง เขียน·พูด", "sg.note": "เขียน·พูดเป็นการตอบอิสระ จึงให้คะแนนอัตโนมัติได้ยาก ประเมินตนเองโดยเทียบกับคำตอบตัวอย่างแล้วจะรวมในคะแนนรวม", "sg.prompt": "↓ ประเมินเขียน·พูดเองเพื่อรวมในคะแนน", "sg.good": "ดี", "sg.mid": "พอใช้", "sg.poor": "ยังไม่ดี", "sg.ungraded": "ยังไม่ประเมิน", "bd.mc": "ปรนัย", "bd.writing": "เขียน", "bd.oral": "พูด", "bd.total": "รวม", "result.pass": "ผ่านเกณฑ์ (60 คะแนน) 🎉", "result.fail": "อีกนิดเดียวก็ถึงเกณฑ์ (60 คะแนน)!", "result.practice": "นี่คือผลในโหมดฝึก", "result.estLevel": "ระดับที่คาดว่าจะได้รับการจัด: {0}", "result.levelDisclaimer": "※ คะแนนนี้ไม่ใช่คะแนนจัดระดับจริง แต่เป็น <b>ค่าประมาณตามความสามารถปรนัย</b> การประเมินเบื้องต้นจริงคือ ปรนัย (75 คะแนน)+เขียน (2 ข้อ)+พูด (25 คะแนน)=100 คะแนน โดยเขียน·พูดตรวจโดยคน นอกจากนี้ <b>หากพูดได้ต่ำกว่า 3 คะแนนจะถูกจัดเป็นระดับ 0</b> ระดับที่แน่นอนจะกำหนดจากคะแนนในวันสอบ", "track.nat": "การประเมินรวมแปลงสัญชาติ", "track.perm": "การประเมินรวมถิ่นที่อยู่ถาวร", "track.pre": "การประเมินเบื้องต้นบูรณาการสังคม", "review.unanswered": "ไม่ได้เลือก", "review.emptyWrite": "ไม่มีคำตอบที่เขียนไว้", "review.emptyOral": "ไม่มีเนื้อหาที่จดไว้", "stats.total": "ข้อที่ทำทั้งหมด", "stats.acc": "อัตราถูกรวม", "stats.noHistory": "ยังไม่มีประวัติข้อสอบจำลอง", "wrong.empty": "ไม่มีข้อที่ผิด ทำได้ดีมาก! 👏", "writing.empty": "ไม่มีข้อสอบประเภทนี้", "guide.show": "💡 ดูคำแนะนำ", "guide.hide": "💡 ซ่อนคำแนะนำ", "writing.draftPh": "ลองเขียนคำตอบที่นี่ (ไม่เกิน 200 ตัวอักษร)", "model.show": "📝 ดูคำตอบตัวอย่าง", "model.hide": "📝 ซ่อนคำตอบตัวอย่าง", "review.model": "คำตอบตัวอย่าง", "resume.banner": "📌 ทำข้อสอบจำลองที่ค้างไว้ต่อ ({0}/{1})", "exam.resume": "ทำต่อ ({0}/{1})", "confirm.discardMock": "ประวัติข้อสอบจำลองที่ทำค้างไว้จะหายไป จะเริ่มใหม่หรือไม่?", "toast.resumed": "ทำต่อจากเดิม", "resume.practice": "📌 ทำต่อ — {0} ({1}/{2})", "practice.allLabel": "ทั้งหมด", "confirm.submit": "จะส่งและตรวจคะแนนหรือไม่?", "confirm.clearWrong": "จะล้างสมุดข้อผิดทั้งหมดหรือไม่?", "confirm.resetStats": "จะรีเซ็ตสถิติและประวัติการเรียนทั้งหมดหรือไม่?", "toast.clearedWrong": "ล้างสมุดข้อผิดแล้ว", "toast.resetStats": "รีเซ็ตแล้ว", "toast.noQ": "ไม่มีข้อสอบให้ทำ กรุณาซิงค์ก่อน", "toast.timeUp": "หมดเวลา! ตรวจคะแนนอัตโนมัติ", "count.char": "{0} ตัวอักษร", "wrong.desc2": "ข้อที่ตอบผิดจะถูกรวบรวมไว้ที่นี่ ตอบถูก <b>สองครั้งติดต่อกัน</b> ก็จะจบการศึกษาออกจากรายการ", "wrong.miss": "ผิด {0} ครั้ง", "wrong.almost": "ตอบถูกอีกครั้งก็จบการศึกษา", "wrong.desc3": "ข้อที่ตอบผิดจะถูกรวบรวมไว้ที่นี่ คำตอบถูกซ่อนไว้ เลือกตัวเลือกแล้วตรวจคะแนนทันที ตอบถูก <b>สองครั้งติดต่อกัน</b> ก็จะจบการศึกษาออกจากรายการ", "wrong.del": "ลบ", "wrong.confirmDel": "จะลบข้อนี้ออกจากสมุดข้อผิดหรือไม่?", "wrong.deleted": "ลบออกจากสมุดข้อผิดแล้ว", "wrong.grad": "จบการศึกษา! ข้อนี้จะออกจากรายการ 🎓", "wrong.retry": "ทำอีกครั้ง", "listen.head": "🎧 ฟังแล้วพูด", "listen.play": "▶ ฟัง", "listen.replay": "↻ ฟังอีกครั้ง", "listen.stop": "■ หยุด", "listen.script": "ดูบทพูด", "listen.scriptHide": "ซ่อนบทพูด", "listen.hint": "ลองฟังเฉพาะเสียงแล้วตอบก่อน ควรดูบทพูดหลังจากตอบแล้ว", "listen.no": "เบราว์เซอร์นี้ไม่รองรับการเล่นเสียง กรุณาดูบทพูดเพื่อฝึกซ้อม", "examdate.title": "ตั้งวันสอบ", "examdate.set": "ตั้งค่า", "examdate.clear": "ล้าง", "examdate.dday": "เหลือ {0} วัน", "examdate.today": "วันนี้เลย", "examdate.pace": "แนะนำต่อวัน: {0} ข้อ", "examdate.left": "เหลือ {0} ข้อ", "examdate.past": "เลยวันสอบแล้ว — กรุณาตั้งวันสอบใหม่", "examdate.hint": "ตั้งวันสอบแล้วจะบอกว่าแต่ละวันควรทำกี่ข้อ", "result.mcScore": "ปรนัย", "result.mcOf": "{0} / 65 คะแนน", "result.estTotal": "คะแนนรวมโดยประมาณ (รวมประเมินตนเอง)", "result.estOf": "{0} / 100", "result.ungradedN": "ยังไม่ประเมิน {0} ข้อ — ประเมินแล้วจึงจะได้คะแนนรวม", "result.mcOnly": "เฉพาะปรนัย {0} / 65", "stats.practiceCat": "ฝึกเฉพาะหมวดนี้", "practice.weak": "เน้นจุดอ่อน", "practice.weakSub": "หมวดที่ผิดบ่อยจะออกบ่อยขึ้น", "oral.recite": "กรุณาปิดคำตอบตัวอย่างแล้วลองพูดตอบออกเสียงก่อน", "oral.reveal": "ดูคำตอบตัวอย่าง", "oral.hideModel": "ซ่อนคำตอบตัวอย่าง", "oral.selfHead": "ประเมินตนเอง", "oral.good": "ดี", "oral.mid": "พอใช้", "oral.poor": "ยังไม่ดี", "oral.saved": "บันทึกแล้ว", "wongoji.title": "วิธีเขียนบนกระดาษคำตอบแบบช่อง (สอบจริงเขียนบนกระดาษแบบช่อง)", "wongoji.body": "<ul><li>① เขียนอักษรเกาหลี 1 ตัวต่อ 1 ช่อง</li><li>② ตัวเลขตั้งแต่ 2 หลักขึ้นไปและตัวอักษรพิมพ์เล็กเขียน 2 ตัวต่อ 1 ช่อง ส่วนตัวเลข 1 หลักและตัวพิมพ์ใหญ่เขียน 1 ตัวต่อ 1 ช่อง</li><li>③ ต้นเรื่องและย่อหน้าใหม่ให้เว้นช่องแรกไว้ แล้วเริ่มเขียนจากช่องที่สอง</li><li>④ ตั้งแต่บรรทัดที่สองเป็นต้นไป ให้เขียนเต็มตั้งแต่ช่องแรกของบรรทัด โดยไม่ต้องเว้นวรรค</li><li>⑤ หลังเครื่องหมายจุลภาค(,)และมหัพภาค(.)ไม่ต้องเว้นช่อง ส่วนหลังเครื่องหมายคำถาม(?)และอัศเจรีย์(!)ให้เว้น 1 ช่อง</li><li>⑥ ไม่เขียนเครื่องหมายวรรคตอนในช่องแรกของบรรทัด แต่ให้เขียนรวมไว้ในช่องสุดท้ายของบรรทัดก่อนหน้า</li><li>⑦ คำว่า '수 있다/없다' (สามารถ/ไม่สามารถ), '것 같다' (ดูเหมือนว่า), ตัวเลขภาษาเกาหลีกับคำลักษณนาม (เช่น '세 명') ฯลฯ ให้เว้นวรรค</li></ul>", "result.paperScore": "ภาคข้อเขียน (ปรนัย+เขียน)", "result.paperOf": "{0} / {1} คะแนน", "result.wAuto": "รวมคะแนนเขียนที่ตรวจอัตโนมัติแล้ว", "sg.noteAuto": "ส่วนการเขียนตรวจคะแนนอัตโนมัติจากเนื้อหาคำตอบแล้ว ส่วนการพูดเป็นการพูดอิสระ กรุณาประเมินเองโดยเทียบกับคำตอบตัวอย่าง หากไม่พอใจคะแนนอัตโนมัติ สามารถกดปุ่มเพื่อเขียนทับได้", "sg.headOverride": "ประเมินใหม่ด้วยตนเอง", "bd.autoTag": "อัตโนมัติ", "auto.ok": "ตอบถูก ✅", "auto.mid": "ไวยากรณ์ถูกแต่สำนวนยังไม่ดี △", "auto.no": "ตอบผิด ❌", "auto.empty": "ไม่มีคำตอบที่เขียนไว้ ❌", "auto.task": "การทำตามโจทย์ (①②③④ ข้อละ 2.5 คะแนน)", "auto.len": "ความยาว", "auto.style": "ระดับภาษา", "result.oralFloor": "พูดต่ำกว่า 3 คะแนน", "auto.checkHead": "รายการตรวจสอบ (ไม่คิดเป็นคะแนน)", "auto.title": "ชื่อเรื่อง", "auto.flow": "การเชื่อมประโยค", "auto.w.over": "เกิน 200 ช่อง", "auto.w.short": "สั้นไปเล็กน้อย", "auto.w.mixed": "ใช้ระดับภาษาปนกัน", "auto.w.titled": "ไม่ต้องเขียนชื่อเรื่อง", "auto.capped": "ความยาวไม่พอ จึงจำกัดคะแนนไว้ ด้วยความยาวเท่านี้ไม่สามารถเขียนครบทั้งสี่ประเด็นได้", "auto.noteNat": "※ คะแนนอย่างเป็นทางการคือ <b>ข้อเขียน 10 คะแนน = 4 ข้อ × 2.5 คะแนน</b> (กระทรวงยุติธรรม · มูลนิธิการย้ายถิ่นเกาหลีเผยแพร่) ส่วนเกณฑ์การตรวจโดยละเอียดภายในนั้น <b>ไม่เปิดเผยตามกฎหมาย</b> คะแนนตรงนี้ดูเพียงว่า <b>ได้เขียนถึง</b> ทั้งสี่ประเด็นหรือไม่ เป็นค่าประมาณสำหรับฝึกซ้อม <b>ไม่ได้ตรวจความถูกต้องของคำศัพท์·ไวยากรณ์และความลึกของเนื้อหา</b> การสอบจริงกรรมการคุมสอบจะอ่านและตรวจเอง", "auto.notePre": "※ ข้อเขียนตอบสั้นของการประเมินเบื้องต้นจริงคือข้อละ 1.5 คะแนน และไม่มีการเปิดเผยว่ามีคะแนนบางส่วนหรือไม่ เครื่องหมาย △ เป็นเพียงสัญลักษณ์สำหรับการฝึกซ้อม", "auto.w.choppy": "ประโยคน้อยเกินไป", "auto.overNote": "เกิน 200 ช่องแล้ว ข้อสอบจริงมีกระดาษช่อง 200 ช่องเพียงแผ่นเดียว ส่วนที่เกินจึงไม่มีที่ให้เขียน ที่นี่ก็ตรวจเพียงถึงช่องที่ 200 เท่านั้น", "style.formal": "รูป -seumnida", "style.polite": "รูป -haeyo", "style.plain": "ภาษาเขียน", "style.casual": "ภาษาไม่สุภาพ", "auto.w.banmal": "ไม่ใช้ภาษาไม่สุภาพในข้อสอบ", "count.sent": "{0} ประโยค"};
 CAT_TR.vi = {"한국어": "Tiếng Hàn", "사회": "Xã hội", "문화": "Văn hóa", "정치": "Chính trị", "경제": "Kinh tế", "교육": "Giáo dục", "법": "Pháp luật", "역사": "Lịch sử", "지리": "Địa lý", "작문": "Viết văn", "구술": "Vấn đáp", "어휘": "Từ vựng", "문법": "Ngữ pháp", "읽기·이해": "Đọc · hiểu", "대화": "Hội thoại", "한국문화": "Văn hóa Hàn Quốc", "한국사회": "Xã hội Hàn Quốc"};
 CAT_TR.th = {"한국어": "ภาษาเกาหลี", "사회": "สังคม", "문화": "วัฒนธรรม", "정치": "การเมือง", "경제": "เศรษฐกิจ", "교육": "การศึกษา", "법": "กฎหมาย", "역사": "ประวัติศาสตร์", "지리": "ภูมิศาสตร์", "작문": "การเขียน", "구술": "การพูด", "어휘": "คำศัพท์", "문법": "ไวยากรณ์", "읽기·이해": "การอ่าน·ความเข้าใจ", "대화": "บทสนทนา", "한국문화": "วัฒนธรรมเกาหลี", "한국사회": "สังคมเกาหลี"};
 T2.vi = {"귀화 종합평가": "Đánh giá tổng hợp nhập tịch", "사회통합프로그램 (KIIP)": "Chương trình Hội nhập xã hội (KIIP)", "귀화용 종합평가": "Đánh giá tổng hợp dùng cho nhập tịch", "필기시험 모의고사": "Thi thử phần thi viết", "실제 시험처럼 풀기 (객관식+작문+구술)": "Làm bài như thi thật (trắc nghiệm + viết + vấn đáp)", "9개 영역별로 풀기": "Luyện theo 9 lĩnh vực", "귀화용 종합평가는 <b>객관식 36문항(65점) + 작문형(10점) + 구술(25점) = 100점</b>, <b>60점 이상이면 합격</b>입니다.": "Đánh giá tổng hợp dùng cho nhập tịch gồm <b>trắc nghiệm 36 câu (65 điểm) + tự luận viết (10 điểm) + vấn đáp (25 điểm) = 100 điểm</b>, <b>đạt 60 điểm trở lên là đậu</b>.", "이 모의고사는 <b>필기(객관식+작문)를 60분 안에</b> 풀고, 이어서 <b>구술 문항</b>까지 연습합니다.": "Bài thi thử này làm <b>phần viết (trắc nghiệm + tự luận) trong 60 phút</b>, sau đó luyện tiếp <b>phần vấn đáp</b>.", "객관식은 ①②③④ 중 하나를 고르고, 작문은 <b>4문제가 통합된 1문제</b>를 <b>200자 원고지 1장 이내</b>로 작성합니다.": "Trắc nghiệm chọn một trong ①②③④; phần tự luận là <b>1 đề gộp từ 4 câu</b>, viết trong <b>1 tờ giấy ô 200 chữ</b>.", "객관식만 자동 채점되며, 작문·구술은 모범답안·도움말로 스스로 점검합니다.": "Chỉ trắc nghiệm được chấm tự động; phần viết · vấn đáp tự kiểm tra bằng đáp án mẫu · gợi ý.", "실제 시험의 구술은 별도 10분 세션(<b>5문항×5점</b>)입니다. 사회통합프로그램 <b>5단계 전 과정(기본+심화) 이수</b> + 합격 시 <b>귀화 면접심사가 면제</b>됩니다.": "Phần vấn đáp ở kỳ thi thật là một phiên riêng 10 phút (<b>5 câu × 5 điểm</b>). Khi <b>hoàn thành toàn bộ giai đoạn 5 (cơ bản + chuyên sâu)</b> của Chương trình Hội nhập xã hội và thi đậu, bạn <b>được miễn phỏng vấn nhập tịch</b>.", "귀화허가 신청자는 <b>신청일로부터 1년 이내 재응시 2회</b>(최초 포함 총 3회)까지 가능하며, <b>3회 모두 불합격하면 귀화신청이 불허</b>됩니다.": "Người xin phép nhập tịch có thể <b>thi lại tối đa 2 lần trong vòng 1 năm kể từ ngày nộp đơn</b> (tổng cộng 3 lần kể cả lần đầu); nếu <b>trượt cả 3 lần, đơn xin nhập tịch sẽ không được chấp thuận</b>.", "TOPIK 급수가 있으면 사전평가 없이 단계 배정이 가능합니다(<b>1급→2단계, 2급→3단계, 3급→4단계, 4급 이상→5단계</b>). 배정 단계는 <b>2년간 유효</b>하며, 사전평가에 재응시하면 이전 교육 이수 기록이 무효가 됩니다.": "Nếu có chứng chỉ TOPIK, bạn có thể được xếp giai đoạn mà không cần thi đánh giá đầu vào (<b>cấp 1→giai đoạn 2, cấp 2→giai đoạn 3, cấp 3→giai đoạn 4, cấp 4 trở lên→giai đoạn 5</b>). Giai đoạn được xếp có <b>hiệu lực 2 năm</b>; nếu thi lại đánh giá đầu vào, hồ sơ học tập trước đó sẽ bị hủy.", "영주 종합평가": "Đánh giá tổng hợp định cư", "영주용 종합평가": "Đánh giá tổng hợp dùng cho định cư", "영주용 종합평가는 <b>객관식 36문항(65점) + 작문형(10점) + 구술(25점) = 100점</b>, <b>60점 이상이면 합격</b>입니다.": "Đánh giá tổng hợp dùng cho định cư gồm <b>trắc nghiệm 36 câu (65 điểm) + tự luận viết (10 điểm) + vấn đáp (25 điểm) = 100 điểm</b>, <b>đạt 60 điểm trở lên là đậu</b>.", "응시 자격: 사회통합프로그램 <b>5단계 기본과정 수료</b>, 또는 <b>사전평가 85점 이상 득점 후 2년 이내</b>. 영주용은 <b>지필(PBT)로만</b> 시행됩니다.": "Điều kiện dự thi: <b>hoàn thành khóa cơ bản giai đoạn 5</b> của Chương trình Hội nhập xã hội, hoặc <b>trong vòng 2 năm sau khi đạt từ 85 điểm trở lên ở đánh giá đầu vào</b>. Bài thi định cư <b>chỉ thi trên giấy (PBT)</b>.", "사회통합 사전평가": "Đánh giá đầu vào Hội nhập xã hội", "사회통합프로그램 사전평가": "Đánh giá đầu vào Chương trình Hội nhập xã hội", "단계 배정 모의평가": "Đánh giá thử để xếp giai đoạn", "어휘·문법·읽기·대화·문화·사회": "Từ vựng · ngữ pháp · đọc · hội thoại · văn hóa · xã hội", "사회통합프로그램 <b>사전평가</b>는 합격·불합격 시험이 아니라, 점수에 따라 <b>0~5단계</b>를 배정하는 레벨 평가입니다.": "<b>Đánh giá đầu vào</b> của Chương trình Hội nhập xã hội không phải kỳ thi đậu · rớt, mà là bài đánh giá phân cấp để xếp <b>giai đoạn 0~5</b> theo điểm số.", "실제 시험은 <b>필기 50문항(60분, 75점)</b> + <b>구술 5문항(10분, 25점)</b> = 100점입니다. 이 모의평가는 필기(객관식+작문)를 풀고 이어서 구술을 연습합니다.": "Kỳ thi thật gồm <b>phần viết 50 câu (60 phút, 75 điểm)</b> + <b>vấn đáp 5 câu (10 phút, 25 điểm)</b> = 100 điểm. Bài đánh giá thử này làm phần viết (trắc nghiệm + tự luận) rồi luyện tiếp phần vấn đáp.", "객관식은 ①②③④ 중 하나를 고르고, 작문은 빈칸에 알맞은 표현을 짧게 씁니다.": "Trắc nghiệm chọn một trong ①②③④, phần viết điền ngắn gọn cách diễn đạt thích hợp vào chỗ trống.", "객관식만 자동 채점되어 <b>예상 배정 단계</b>를 알려줍니다. 작문·구술은 모범답안으로 스스로 점검합니다.": "Chỉ trắc nghiệm được chấm tự động và cho biết <b>giai đoạn xếp lớp dự kiến</b>. Phần viết · vấn đáp tự kiểm tra bằng đáp án mẫu.", "실제로는 <b>구술 점수가 3점 미만이면 0단계</b>로 배정됩니다. 정확한 단계는 시험 당일 점수로 정해지며, 표시되는 단계는 <b>연습용 참고치</b>입니다.": "Trên thực tế, <b>nếu điểm vấn đáp dưới 3 điểm thì xếp giai đoạn 0</b>. Giai đoạn chính xác được quyết định theo điểm trong ngày thi, giai đoạn hiển thị chỉ là <b>giá trị tham khảo khi luyện tập</b>.", "5단계 · 한국사회이해": "Giai đoạn 5 · Hiểu biết xã hội Hàn Quốc", "81~100점": "81~100 điểm", "4단계 · 중급2": "Giai đoạn 4 · Trung cấp 2", "61~80점": "61~80 điểm", "3단계 · 중급1": "Giai đoạn 3 · Trung cấp 1", "41~60점": "41~60 điểm", "2단계 · 초급2": "Giai đoạn 2 · Sơ cấp 2", "21~40점": "21~40 điểm", "1단계 · 초급1": "Giai đoạn 1 · Sơ cấp 1", "3~20점": "3~20 điểm", "0단계 · 한국어기초": "Giai đoạn 0 · Tiếng Hàn cơ bản", "구술 3점 미만": "Vấn đáp dưới 3 điểm"};
@@ -358,6 +422,7 @@ const EXAMS = {
     practiceSub: { ko: '9개 영역별로 풀기', zh: '按9个领域练习' },
     noPrefix: 'KINAT',
     mock: { mc: 36, writing: 1, oral: 5, time: 60 * 60, ladder: false },
+    points: { mc: 65, writing: 10, oral: 25 },
     grading: 'passfail',
     notices: {
       ko: [
@@ -387,6 +452,7 @@ const EXAMS = {
     practiceSub: { ko: '9개 영역별로 풀기', zh: '按9个领域练习' },
     noPrefix: 'KIPRAT',
     mock: { mc: 36, writing: 1, oral: 5, time: 60 * 60, ladder: false },
+    points: { mc: 65, writing: 10, oral: 25 },
     grading: 'passfail',
     notices: {
       ko: [
@@ -414,6 +480,7 @@ const EXAMS = {
     practiceSub: { ko: '어휘·문법·읽기·대화·문화·사회', zh: '词汇·语法·阅读·对话·文化·社会' },
     noPrefix: 'KIIP',
     mock: { mc: 48, writing: 2, oral: 5, time: 60 * 60, ladder: true },
+    points: { mc: 72, writing: 3, oral: 25 },
     grading: 'level',
     notices: {
       ko: [
@@ -1406,6 +1473,153 @@ function gradeMock() {
 }
 
 /* =====================================================================
+   작문 자동 채점 — 내용 기반
+   - 사전평가(단답형): 문항에 실린 accept/nearMiss 와 대조. 정답이 확정적이라 사실상 정확하다.
+   - 종합평가(200자 서술): 규칙 기반 루브릭 근사치. 사람 채점을 대신하지 못한다.
+   문항에 채점 데이터(accept·parts)가 없으면 null 을 돌려주고 기존 자가채점으로 남는다.
+
+   기준선은 이 책들의 모범답안 42건으로 맞췄다. 모범답안이 만점권에 들지 않으면
+   그건 학습자가 아니라 채점기가 틀린 것이다. (글자수 134~173·중앙 153, 종결 99.5%가 니다/니까)
+   ===================================================================== */
+
+/* 대조용 정규화: 태그·공백·문장부호를 걷어낸다. 맞춤법은 건드리지 않는다. */
+function wsNorm(s) {
+  return String(s == null ? '' : s)
+    .replace(/<[^>]*>/g, '')
+    .replace(/[\s　]+/g, '')
+    .replace(/[.,!?~…·、。'"“”‘’`()（）\[\]{}:;/\\-]+/g, '')
+    .toLowerCase();
+}
+
+/* 원고지 글자 수 — 공백은 세지 않는다. */
+function wsChars(s) {
+  return String(s == null ? '' : s).replace(/<[^>]*>/g, '').replace(/[\s　]+/g, '').length;
+}
+
+/* 원고지 max칸까지만 남긴다. 공백은 칸을 세지 않으므로 그대로 통과시킨다. */
+function wsClip(s, max) {
+  let out = '', cnt = 0;
+  for (const ch of String(s == null ? '' : s)) {
+    if (/[\s　]/.test(ch)) { out += ch; continue; }
+    if (cnt >= max) break;
+    out += ch; cnt++;
+  }
+  return out;
+}
+
+/* 문장 분리 — 종결부호가 없으면 줄바꿈으로도 끊는다.
+   인용부호 안의 종결부호에서 자르면 안 된다. '늘 건강하세요. 정말 고맙습니다"라고 말씀드렸습니다'는
+   한 문장인데 잘라 버리면 앞 조각이 해요체로 잡혀 문체가 섞인 것처럼 보인다. */
+function wsSentences(s) {
+  const MASK = '\u0001';
+  const x = String(s == null ? '' : s)
+    .replace(/<[^>]*>/g, '')
+    .replace(/[“"]([^“”"]*)[”"]|[‘']([^‘’']*)[’']/g, (m) => m.replace(/[.!?。]/g, MASK));
+  return x.split(/(?<=[.!?。])\s*|\n+/)
+    .map((y) => y.split(MASK).join('.').trim())
+    .filter((y) => y.length > 1);
+}
+
+/* 문장 하나의 종결 문체.
+   격식체는 '-ㅂ니다'가 앞 음절에 붙어 버려서(엽니다·다릅니다) 자모로 찾으면 안 잡힌다.
+   실제 표면형은 언제나 '니다/니까'로 끝나므로 그것으로 본다.
+   '-다'로 끝나는 한다체(문어체)는 반말이 아니다. 법무부 영주용 견본 모범답안이 문어체라
+   시험 답안으로 정당하다. 반말(해체)은 '-어/-아/-야/-지' 계열만 가리킨다. */
+function wsStyleOf(sent) {
+  const s = String(sent || '').replace(/[\s　.,!?~…·。'"“”‘’)\]]+$/g, '');
+  if (!s) return null;
+  if (/(니다|니까)$/.test(s)) return 'formal';   // 합쇼체
+  if (/(요|죠)$/.test(s)) return 'polite';       // 해요체
+  if (/다$/.test(s)) return 'plain';             // 한다체(문어체)
+  return 'casual';                               // 해체 반말
+}
+
+/* ── 사전평가 단답형 ─────────────────────────────────────────────────
+   학습자가 빈칸만 썼든 문장 전체를 옮겨 썼든 잡히도록 부분문자열로 본다.
+   짧은 쪽이 먼저 걸리면 안 된다: accept '피곤해도'가 nearMiss '피곤해도요'의 앞부분이라
+   앞에서부터 찾으면 구어형이 만점이 된다. 그래서 양쪽을 합쳐 가장 긴 일치를 고른다. */
+function wsScorePre(q, text) {
+  const acc = (q.accept || []).map(wsNorm).filter(Boolean);
+  if (!acc.length) return null;                       // 채점 데이터 없음 → 자가채점 유지
+  const norm = wsNorm(text);   // 이름을 t 로 두면 i18n 함수 t() 를 가린다
+  if (!norm) return { frac: 0, why: 'empty', matched: '' };
+  const near = (q.nearMiss || []).map(wsNorm).filter(Boolean);
+  let best = null;
+  acc.forEach((a) => { if (norm.includes(a) && (!best || a.length > best.s.length)) best = { s: a, frac: 1, why: 'accept' }; });
+  near.forEach((a) => { if (norm.includes(a) && (!best || a.length > best.s.length)) best = { s: a, frac: 0.5, why: 'near' }; });
+  return best ? { frac: best.frac, why: best.why, matched: best.s } : { frac: 0, why: 'miss', matched: '' };
+}
+
+/* 연결·대조 표현 — 네 갈래를 한 편의 글로 이었는지 보는 표지. */
+const WS_CONN = /(그리고|하지만|그러나|그래서|그런데|또한|또|반면|다만|특히|이처럼|게다가|때문|덕분|지만|으며|하며|면서|아서|어서|여서|되어|니까|으니|는데|은데|ㄴ데|거나|으면|이면|아니라|뿐만|보다|처럼|같이|위해|통해)/;
+
+/* ── 종합평가 200자 서술 ─────────────────────────────────────────────
+   공식으로 확인되는 배점은 '작문형 10점 = 4문항 × 2.5점'뿐이다(한국이민재단 배점표).
+   내용/어휘·문법/분량으로 10점을 쪼개는 세부 기준은 법무부 비공개다
+   (기본소양 평가관리 규정 제4조② 별표3 + 제12조② '별표와 별지는 공개하지 아니한다').
+   그래서 점수는 공식 단위인 '소주제 하나당 2.5점'만 따르고, 우리가 지어낸 가중치는 쓰지 않는다.
+   분량·문체·제목은 점수에서 빼지 않고 '점검 항목'으로만 보여 준다.
+
+   한계: 표지어 매칭은 그 소주제를 '건드렸는지'만 본다. 어휘를 늘어놓기만 해도 통과하므로
+   실제보다 후하게 나온다. 분량 상한으로 최소한의 방어만 건다. */
+function wsScoreNat(q, text) {
+  const parts = q.parts || [];
+  if (!parts.length) return null;                     // 채점 데이터 없음 → 자가채점 유지
+  const raw = String(text == null ? '' : text).replace(/<[^>]*>/g, '').trim();
+  const n = wsChars(raw);
+  if (!n) return { frac: 0, pts: 0, max: 10, empty: true, hits: parts.map(() => false), chars: 0, sentences: 0, checks: [] };
+  // 실제 시험지는 200칸 원고지 1장이 물리적 상한이다. 넘긴 부분은 애초에 쓸 자리가 없으므로
+  // 감점하는 대신 아예 없는 것으로 보고 200칸까지만 채점한다.
+  const over = n > 200;
+  const body = over ? wsClip(raw, 200) : raw;
+  const norm = wsNorm(body);   // 이름을 t 로 두면 i18n 함수 t() 를 가린다
+
+  const hits = parts.map((p) => (p.anyOf || []).some((k) => {
+    const kk = wsNorm(k);
+    return kk && norm.includes(kk);
+  }));
+  const nHit = hits.filter(Boolean).length;
+
+  // 분량 상한 — 40자로 네 갈래를 다 다뤘을 리는 없다. 표지어만 흩뿌린 답안을 막는 최소 방어.
+  const g = Math.min(n, 200);
+  const cap = g >= 130 ? 10 : (g >= 100 ? 7.5 : (g >= 70 ? 5 : (g >= 40 ? 2.5 : 0)));
+  const pts = Math.min(nHit * (10 / parts.length), cap);
+
+  // ── 점검 항목: 점수에 넣지 않는다. 규칙으로 확실한 것만 단정한다. ──
+  const sents = wsSentences(body);
+  const st = sents.map(wsStyleOf).filter(Boolean);
+  const cnt = { formal: 0, polite: 0, plain: 0, casual: 0 };
+  st.forEach((x) => { cnt[x]++; });
+  const mixed = Object.values(cnt).filter((x) => x > 0).length > 1;
+  const top = Object.keys(cnt).reduce((a, b) => (cnt[b] > cnt[a] ? b : a), 'formal');
+  // 공식 지시는 '제목 생략, 본문만'. 첫 줄이 짧고 종결어미가 없으면 제목을 쓴 것으로 본다.
+  const first = (body.split(/\n/)[0] || '').trim();
+  const titled = sents.length > 1 && first.length > 0 && first.length <= 20 && !/[.!?]$/.test(first) && wsStyleOf(first) === 'casual';
+  // 표시 문자열은 만들지 않는다. 화면에 그릴 때 autoBox 가 현재 언어로 옮긴다.
+  const checks = [
+    { key: 'len', ok: n >= 130 && n <= 200, n, unit: 'count.char', warn: over ? 'over' : (n < 130 ? 'short' : '') },
+    // 공식 문체 규정은 없다. 혼용과 해체 반말만 지적한다.
+    { key: 'style', ok: !mixed && !cnt.casual, valKey: 'style.' + top,
+      warn: cnt.casual ? 'banmal' : (mixed ? 'mixed' : '') },
+    { key: 'title', ok: !titled, warn: titled ? 'titled' : '' },
+    { key: 'flow', ok: sents.length >= 3 && (WS_CONN.test(body) || g / sents.length >= 25), n: sents.length, unit: 'count.sent', warn: sents.length < 3 ? 'choppy' : '' },
+  ];
+
+  return {
+    frac: Math.max(0, Math.min(1, pts / 10)),
+    pts: Math.round(pts * 10) / 10, max: 10, empty: false,
+    hits, nHit, chars: n, sentences: sents.length, over,
+    capped: pts < nHit * (10 / parts.length), checks,
+  };
+}
+
+/* 문항 하나를 받아 알맞은 채점기를 고른다. 구술(oral)은 대상이 아니다. */
+function wsScore(q, text) {
+  if (!q || q.type !== 'writing') return null;
+  return (q.exam === 'pre') ? wsScorePre(q, text) : wsScoreNat(q, text);
+}
+
+/* =====================================================================
    결과
    ===================================================================== */
 function renderResult(list, answers, correct, opts) {
@@ -1415,80 +1629,121 @@ function renderResult(list, answers, correct, opts) {
   const denom = totalMc || list.length;
   const mcPct = denom ? Math.floor((correct / denom) * 100) : 0;
   const hasWriting = list.some((q) => q.type !== 'mc');
-  // 종합평가(귀화·영주) 모의고사 = 객관식65 + 작문10 + 구술25, 작문·구술은 자가채점
-  const isComposite = isMock && (activeExam === 'nat' || activeExam === 'perm') && hasWriting;
+  // 배점은 트랙별로 다르다. 귀화·영주 65/10/25, 사전평가 72/3/25(필기 75 + 구술 25).
+  const P = (exam() && exam().points) || { mc: 65, writing: 10, oral: 25 };
+  const isComposite = isMock && hasWriting;
+  const isLevelTrack = isMock && activeExam === 'pre';
   const numW = list.filter((q) => q.type === 'writing').length;
   const numO = list.filter((q) => q.type === 'oral').length;
-  const mcScore65 = denom ? (correct / denom) * 65 : 0;
+  const mcScoreP = denom ? (correct / denom) * P.mc : 0;
 
   const passEl = $('scorePass');
   const levelBox = $('levelResult');
   const sb = $('scoreBreakdown');
 
+  // 작문은 내용 기반으로 자동 채점하고 그 결과를 자가채점 칸에 미리 채운다.
+  // 학습자가 버튼으로 다시 매기면 그쪽이 이긴다(수동 우선).
+  const texts0 = (quiz && quiz.text) ? quiz.text : {};
+  const autoW = {};
+  if (isComposite) {
+    list.forEach((q) => {
+      if (q.type !== 'writing') return;
+      const r = wsScore(q, texts0[q.id]);
+      if (!r) return;                                  // 채점 데이터 없는 문항은 자가채점으로 남긴다
+      autoW[q.id] = r;
+      if (mockSelfGrade[q.id] == null) mockSelfGrade[q.id] = r.frac;
+    });
+  }
+
   // A4: 미채점 작문·구술을 총점에 0점 합산하지 않는다.
-  //  1층 = 객관식 X/65(자동채점, 크게).  2층 = 자가채점 포함 추정 총점(전부 채점 시에만).
-  const mc65 = Math.round(mcScore65);
+  //  1층 = 객관식 X/만점(자동채점, 크게).  2층 = 자가채점 포함 추정 총점(전부 채점 시에만).
+  const mc65 = Math.round(mcScoreP);
   function recompute() {
     let sw = 0, so = 0, gradedW = 0, gradedO = 0;
     list.forEach((q) => {
       const g = mockSelfGrade[q.id]; if (g == null) return;
       if (q.type === 'writing') { sw += g; gradedW++; } else if (q.type === 'oral') { so += g; gradedO++; }
     });
-    const wScore = numW ? (sw / numW) * 10 : 0;
-    const oScore = numO ? (so / numO) * 25 : 0;
-    const total = Math.round(mcScore65 + wScore + oScore);
+    const wScore = numW ? (sw / numW) * P.writing : 0;
+    const oScore = numO ? (so / numO) * P.oral : 0;
+    const total = Math.round(mcScoreP + wScore + oScore);
     const ungradedN = list.filter((q) => (q.type === 'writing' || q.type === 'oral') && mockSelfGrade[q.id] == null).length;
     const allGraded = ungradedN === 0;
+    const wDone = gradedW >= numW;
 
-    // 큰 숫자: 전부 채점되면 총점/100, 아니면 객관식 점수/65
-    $('scorePct').textContent = allGraded ? total : mc65;
-    $('scoreUnit').textContent = allGraded ? t('result.estOf', '').replace(/\s*\{0\}\s*/, '') : '';
-    $('scoreFrac').innerHTML = allGraded
-      ? `<span class="score-line">${t('result.estTotal')}: <b>${t('result.estOf', total)}</b></span>` +
-        `<span class="score-sub">${t('result.mcScore')} ${t('result.mcOf', mc65)}</span>`
-      : `<span class="score-line">${t('result.mcScore')}: <b>${t('result.mcOf', mc65)}</b></span>` +
-        `<span class="score-sub">${t('result.frac', denom, correct)}</span>`;
+    if (isLevelTrack) {
+      // 사전평가는 합격·불합격이 아니라 단계 배정이다.
+      // 구술까지 채점되면 100점 만점 총점으로, 아니면 필기(객관식+작문) 백분율로 단계를 추정한다.
+      // 채점 안 된 작문을 0점으로 깔면 단계가 억울하게 내려간다. 채점 전이면 분모에서도 뺀다.
+      const paper = mcScoreP + (wDone ? wScore : 0);
+      const paperMax = P.mc + (wDone ? P.writing : 0);
+      const est = allGraded ? total : Math.round((paper / paperMax) * 100);
+      // 공식 규정: 구술이 3점 미만이면 필기 점수와 무관하게 0단계.
+      // 구술을 끝까지 채점한 경우에만 이 규정을 적용할 수 있다.
+      const oralFloor = gradedO >= numO && numO > 0 && oScore < 3;
+      const lv = oralFloor ? PRE_LEVELS[PRE_LEVELS.length - 1] : preLevelFor(est);
+      $('scorePct').textContent = est;
+      $('scoreUnit').textContent = t('result.unit');
+      $('scoreFrac').innerHTML = allGraded
+        ? `<span class="score-line">${t('result.estTotal')}: <b>${t('result.estOf', total)}</b></span>` +
+          `<span class="score-sub">${t('result.paperOf', Math.round(paper), paperMax)}</span>`
+        : `<span class="score-line">${t('result.paperScore')}: <b>${t('result.paperOf', Math.round(paper), paperMax)}</b></span>` +
+          `<span class="score-sub">${t('result.frac', denom, correct)}${wDone ? ' · ' + t('result.wAuto') : ''}</span>`;
+      passEl.textContent = t('result.estLevel', tx(lv.name)) + (oralFloor ? ' · ' + t('result.oralFloor') : '');
+      passEl.className = 'score-card__pass level';
+      levelBox.innerHTML = renderLevelTable(lv);
+      levelBox.classList.remove('hidden');
+    } else {
+      // 큰 숫자: 전부 채점되면 총점/100, 아니면 객관식 점수/만점
+      $('scorePct').textContent = allGraded ? total : mc65;
+      $('scoreUnit').textContent = allGraded ? t('result.estOf', '').replace(/\s*\{0\}\s*/, '') : '';
+      $('scoreFrac').innerHTML = allGraded
+        ? `<span class="score-line">${t('result.estTotal')}: <b>${t('result.estOf', total)}</b></span>` +
+          `<span class="score-sub">${t('result.mcScore')} ${t('result.mcOf', mc65)}</span>`
+        : `<span class="score-line">${t('result.mcScore')}: <b>${t('result.mcOf', mc65)}</b></span>` +
+          `<span class="score-sub">${t('result.frac', denom, correct)}</span>`;
+      // 합격선(60) 판정은 채점 완료 시에만 총점 기준. 아니면 중립 표기.
+      if (allGraded) {
+        const pass = total >= 60;
+        passEl.textContent = pass ? t('result.pass') : t('result.fail');
+        passEl.className = 'score-card__pass ' + (pass ? 'pass' : 'fail');
+      } else {
+        passEl.textContent = t('result.mcOnly', mc65);
+        passEl.className = 'score-card__pass';
+      }
+      levelBox.classList.add('hidden');
+    }
 
+    const nAuto = Object.keys(autoW).length;
     sb.innerHTML =
-      `<div class="bd-note">${t('sg.note')}</div>` +
-      `<div class="bd-row"><span>${t('bd.mc')}</span><span>${mc65} / 65</span></div>` +
-      `<div class="bd-row"><span>${t('bd.writing')}</span><span>${gradedW < numW ? '—' : Math.round(wScore)} / 10</span></div>` +
-      `<div class="bd-row"><span>${t('bd.oral')}</span><span>${gradedO < numO ? '—' : Math.round(oScore)} / 25</span></div>` +
+      `<div class="bd-note">${nAuto ? t('sg.noteAuto') : t('sg.note')}</div>` +
+      `<div class="bd-row"><span>${t('bd.mc')}</span><span>${mc65} / ${P.mc}</span></div>` +
+      `<div class="bd-row"><span>${t('bd.writing')}${nAuto ? ` <em class="bd-auto">${t('bd.autoTag')}</em>` : ''}</span>` +
+        `<span>${wDone ? Math.round(wScore * 10) / 10 : '—'} / ${P.writing}</span></div>` +
+      `<div class="bd-row"><span>${t('bd.oral')}</span><span>${gradedO < numO ? '—' : Math.round(oScore)} / ${P.oral}</span></div>` +
       (allGraded
         ? `<div class="bd-row bd-total"><span>${t('bd.total')}</span><span>${total} / 100</span></div>`
         : `<div class="bd-prompt">${t('result.ungradedN', ungradedN)}</div>`);
-
-    // 합격선(60) 판정은 자가채점 완료 시에만 총점 기준. 아니면 중립 표기.
-    if (allGraded) {
-      const pass = total >= 60;
-      passEl.textContent = pass ? t('result.pass') : t('result.fail');
-      passEl.className = 'score-card__pass ' + (pass ? 'pass' : 'fail');
-    } else {
-      passEl.textContent = t('result.mcOnly', mc65);
-      passEl.className = 'score-card__pass';
-    }
   }
 
   if (isComposite) {
-    levelBox.classList.add('hidden');
     sb.classList.remove('hidden');
     recompute();
   } else {
     sb.classList.add('hidden');
+    levelBox.classList.add('hidden');
     $('scorePct').textContent = mcPct;
     $('scoreUnit').textContent = t('result.unit');
     $('scoreFrac').textContent = t('result.frac', denom, correct) + (hasWriting ? t('result.fracMore') : '');
     if (isMock && activeExam === 'pre') {
+      // 작문·구술이 하나도 없는 사전평가 모의고사(풀이 빈 경우)라도 합격·불합격이 아니라 단계로 보여준다.
       const lv = preLevelFor(mcPct);
       passEl.textContent = t('result.estLevel', tx(lv.name));
       passEl.className = 'score-card__pass level';
       levelBox.innerHTML = renderLevelTable(lv);
       levelBox.classList.remove('hidden');
-    } else {
-      levelBox.classList.add('hidden');
-      if (isMock) { const pass = mcPct >= 60; passEl.textContent = pass ? t('result.pass') : t('result.fail'); passEl.className = 'score-card__pass ' + (pass ? 'pass' : 'fail'); }
-      else { passEl.textContent = t('result.practice'); passEl.className = 'score-card__pass'; }
-    }
+    } else if (isMock) { const pass = mcPct >= 60; passEl.textContent = pass ? t('result.pass') : t('result.fail'); passEl.className = 'score-card__pass ' + (pass ? 'pass' : 'fail'); }
+    else { passEl.textContent = t('result.practice'); passEl.className = 'score-card__pass'; }
   }
 
   const cat = {};
@@ -1503,7 +1758,7 @@ function renderResult(list, answers, correct, opts) {
 
   const texts = (quiz && quiz.text) ? quiz.text : {};
   const rl = $('reviewList'); rl.innerHTML = '';
-  list.forEach((q, i) => rl.appendChild(reviewItem(q, answers[i], texts[q.id], isComposite, mockSelfGrade[q.id])));
+  list.forEach((q, i) => rl.appendChild(reviewItem(q, answers[i], texts[q.id], isComposite, mockSelfGrade[q.id], autoW[q.id])));
   if (isComposite) {
     rl.querySelectorAll('.sg-btn').forEach((btn) => {
       btn.addEventListener('click', () => {
@@ -1527,7 +1782,33 @@ function renderLevelTable(cur) {
   return `<div class="level-note">${t('result.levelDisclaimer')}</div><div class="level-table">${rows}</div>`;
 }
 
-function reviewItem(q, chosen, writeText, sgMode, sgVal) {
+/* 작문 자동채점 결과 상자 — 사전평가는 정오, 종합평가는 소주제 커버리지 + 점검 항목. */
+function autoBox(q, r) {
+  const esc = (x) => String(x == null ? '' : x).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  if (q.exam === 'pre') {
+    const k = r.frac === 1 ? 'ok' : (r.frac === 0.5 ? 'mid' : 'no');
+    const label = t(r.frac === 1 ? 'auto.ok' : (r.frac === 0.5 ? 'auto.mid' : (r.why === 'empty' ? 'auto.empty' : 'auto.no')));
+    const hint = (r.frac < 1 && q.hint) ? `<div class="auto-hint">💡 ${esc(q.hint)}</div>` : '';
+    return `<div class="auto-box auto-box--${k}"><div class="auto-head"><span class="auto-verdict">${label}</span>` +
+      `<span class="auto-pts">${r.frac * 1.5} / 1.5</span></div>${hint}` +
+      `<div class="auto-note">${t('auto.notePre')}</div></div>`;
+  }
+  const parts = q.parts || [];
+  const marks = parts.map((p, i) => `<span class="auto-part${r.hits[i] ? ' is-on' : ''}">${'①②③④'[i] || (i + 1)} ${esc(p.label)}</span>`).join('');
+  const val = (c) => (c.valKey ? t(c.valKey) : (c.unit != null ? t(c.unit, c.n) : ''));
+  const checks = (r.checks || []).map((c) => `<div class="auto-row${c.ok ? '' : ' is-warn'}"><span>${c.ok ? '✓' : '⚠'} ${t('auto.' + c.key)}` +
+    `${c.warn ? ` <em>${t('auto.w.' + c.warn)}</em>` : ''}</span><span>${esc(val(c))}</span></div>`).join('');
+  const cls = r.pts >= 7.5 ? 'ok' : (r.pts >= 5 ? 'mid' : 'no');
+  const capped = r.capped ? `<div class="auto-hint">⚠ ${t('auto.capped')}</div>` : '';
+  const over = r.over ? `<div class="auto-hint">⚠ ${t('auto.overNote')}</div>` : '';
+  return `<div class="auto-box auto-box--${cls}"><div class="auto-head"><span class="auto-verdict">${t('auto.task')}</span>` +
+    `<span class="auto-pts">${r.pts} / ${r.max}</span></div>` +
+    `<div class="auto-parts">${marks}</div>${over}${capped}` +
+    `<div class="auto-sub">${t('auto.checkHead')}</div><div class="auto-rows">${checks}</div>` +
+    `<div class="auto-note">${t('auto.noteNat')}</div></div>`;
+}
+
+function reviewItem(q, chosen, writeText, sgMode, sgVal, auto) {
   const el = document.createElement('div');
   el.className = 'review-item';
   if (q.type !== 'mc') {
@@ -1538,10 +1819,12 @@ function reviewItem(q, chosen, writeText, sgMode, sgVal) {
     if (sgMode) {
       const lv = [['1', 'sg.good'], ['0.5', 'sg.mid'], ['0', 'sg.poor']];
       const btns = lv.map(([f, k]) => `<button type="button" class="sg-btn${String(sgVal) === f ? ' is-on' : ''}" data-qid="${q.id}" data-frac="${f}">${t(k)}</button>`).join('');
-      sgHtml = `<div class="sg-grade"><span class="sg-grade__label">${t('sg.head')}</span><div class="sg-btns">${btns}</div></div>`;
+      sgHtml = `<div class="sg-grade"><span class="sg-grade__label">${t(auto ? 'sg.headOverride' : 'sg.head')}</span><div class="sg-btns">${btns}</div></div>`;
     }
+    const autoHtml = auto ? autoBox(q, auto) : '';
     el.innerHTML = `<div class="review-item__q">${isOral ? '🗣️' : '✍️'} ${bi(q.q, gl(q, 'q'))}</div>
       <div class="review-item__write ${ans ? '' : 'empty-ans'}">${ans || empty}</div>
+      ${autoHtml}
       ${q.guide ? `<div class="review-item__exp">💡 ${bi(q.guide, gl(q, 'guide'))}</div>` : ''}
       ${q.model ? `<div class="review-item__model"><b>${t('review.model')}</b><br>${bi(q.model, gl(q, 'model'))}</div>` : ''}
       ${sgHtml}`;

@@ -117,6 +117,69 @@ for (const [i, q] of qs.entries()) {
   }
 }
 
+/* 3.5 작문 자동채점 데이터 / 作文自动评分数据
+   - 사전평가 단답형: accept 로 모범답안이 만점을 받아야 한다.
+   - 종합평가 서술형: parts 표지어로 모범답안이 ①②③④ 를 전부 통과해야 한다.
+   채점기(app.js 의 ws* 함수)와 같은 규칙을 여기서 다시 구현하지 않고 최소한만 본다. */
+const wNorm = (x) => String(x == null ? '' : x)
+  .replace(/<[^>]*>/g, '').replace(/[\s　]+/g, '')
+  .replace(/[.,!?~…·、。'"“”‘’`()（）\[\]{}:;/\\-]+/g, '').toLowerCase();
+
+for (const q of qs) {
+  if (q.type !== 'writing') continue;
+  const id = q.id;
+  const isPre = q.exam === 'pre';
+
+  if (isPre) {
+    if (!Array.isArray(q.accept) || !q.accept.length) {
+      warns.push(`  ⚠ ${id}: accept 가 없어 자동채점이 안 됩니다 (缺少 accept，无法自动评分)`);
+      continue;
+    }
+    if ('nearMiss' in q && !Array.isArray(q.nearMiss)) err(id, 'nearMiss 는 배열이어야 합니다', 'nearMiss 必须是数组');
+    if (!nonEmpty(q.hint)) warns.push(`  ⚠ ${id}: hint 가 없습니다 (缺少 hint)`);
+    // 모범답안이 만점을 받는가 — nearMiss 가 정답을 가로채면 여기서 걸린다
+    const t = wNorm(q.model);
+    const acc = q.accept.map(wNorm).filter(Boolean);
+    const near = (q.nearMiss || []).map(wNorm).filter(Boolean);
+    let best = null;
+    for (const a of acc) if (t.includes(a) && (!best || a.length > best.s.length)) best = { s: a, ok: true };
+    for (const a of near) if (t.includes(a) && (!best || a.length > best.s.length)) best = { s: a, ok: false };
+    if (!best) err(id, '모범답안이 accept 에 하나도 안 걸립니다', '参考答案没有命中任何 accept');
+    else if (!best.ok) err(id, `모범답안이 nearMiss "${best.s}" 에 먼저 걸려 만점이 안 됩니다`, `参考答案先命中了 nearMiss "${best.s}"，拿不到满分`);
+  } else {
+    if (!Array.isArray(q.parts) || !q.parts.length) {
+      warns.push(`  ⚠ ${id}: parts 가 없어 자동채점이 안 됩니다 (缺少 parts，无法自动评分)`);
+      continue;
+    }
+    const t = wNorm(q.model);
+    q.parts.forEach((p, i) => {
+      if (!nonEmpty(p.label)) err(id, `parts[${i}].label 이 없습니다`, `parts[${i}] 缺少 label`);
+      if (!Array.isArray(p.anyOf) || p.anyOf.length < 6) {
+        err(id, `parts[${i}] 의 표지어가 6개 미만입니다`, `parts[${i}] 的标记词少于6个`);
+        return;
+      }
+      if (!p.anyOf.some((k) => { const kk = wNorm(k); return kk && t.includes(kk); })) {
+        err(id, `모범답안이 ①②③④[${i + 1}] "${p.label}" 을 통과하지 못합니다`,
+                `参考答案通不过第${i + 1}小点 "${p.label}"`);
+      }
+    });
+    // 소주제끼리 부분문자열로 겹치면 한쪽을 쓴 답안이 다른 쪽까지 통과시킨다
+    for (let i = 0; i < q.parts.length; i++) {
+      for (let j = i + 1; j < q.parts.length; j++) {
+        for (const a of (q.parts[i].anyOf || [])) {
+          for (const b of (q.parts[j].anyOf || [])) {
+            const A = wNorm(a), B = wNorm(b);
+            if (A && B && (A.includes(B) || B.includes(A))) {
+              err(id, `①②③④[${i + 1}] "${a}" 와 [${j + 1}] "${b}" 가 겹칩니다`,
+                      `第${i + 1}小点 "${a}" 与第${j + 1}小点 "${b}" 重叠`);
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
 /* 4. 결과 / 结果 */
 const nat = qs.filter((q) => q.exam !== 'pre').length;
 const pre = qs.length - nat;

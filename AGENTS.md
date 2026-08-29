@@ -42,7 +42,7 @@ JSON 문법, 파일 형식, `id` 중복, `answer` 범위, 4개 언어 누락, �
 python -m http.server 8080
 ```
 
-그다음 <http://localhost:8080/> 을 연다. 비밀번호 잠금 화면이 먼저 나오는데, 소유자에게 받은 비밀번호를 넣으면 된다.
+그다음 <http://localhost:8080/> 을 연다. 홈과 목차는 바로 보이고, 실제 문제 풀이는 회원 이메일 로그인 후 열린다.
 
 ## 4. 배포 — 캐시 번호와 리모트 두 곳
 
@@ -64,7 +64,7 @@ git push gw2 main
 
 ## 5. 손대지 말 것
 
-- `app.js` 의 `GATE_HASH` · `GATE_ALT` 는 공유 비밀번호 잠금이다. 소유자가 명시적으로 비밀번호 교체를 지시할 때만 고치고, 그때는 두 값을 함께 바꾼다. 비밀번호 평문을 저장소 안 어떤 파일에도 적지 않는다.
+- 비밀번호 잠금은 소유자 지시로 걷어냈다. 어떤 형태든 다시 넣으려면 소유자가 정한 확인 문구를 먼저 받아야 한다. 문구 없이 잠금 화면·비밀번호 입력칸을 되살리지 않는다. 문구 평문은 저장소 안 어떤 파일에도 적지 않는다.
 - Supabase service-role key 는 브라우저 코드, `supabase-config.js`, GitHub 저장소에 절대 넣지 않는다. `supabase-config.js` 에는 URL 과 anon/publishable key 만 넣는다.
 - `questions.json`, `typing/data.js`, Service Worker precache 에 실제 문항/모범답안을 다시 넣지 않는다.
 - `.nojekyll` 은 GitHub Pages 설정이다. 지우지 않는다.

@@ -586,58 +586,10 @@ async function loadExerciseQuestions(filters, { silent = false } = {}) {
 }
 
 /* =====================================================================
-   공유 비밀번호 잠금
-   - 링크와 비밀번호를 함께 받은 사람만 앱을 쓰게 하는 초대 장치다.
-   - 한 번 맞히면 그 기기는 계속 기억한다(비밀번호를 바꾸면 모두 다시 묻는다).
-   - 이것은 유료 콘텐츠 보호가 아니다. 홈과 공개 목차 진입만 허용한다.
-   - 실제 문제 읽기는 Supabase Auth + members + RLS 가 담당한다.
-   ===================================================================== */
-const GATE_KEY = 'nq_gate';
-const GATE_HASH = '114c7254931234f33ea9796f12d2add601b4a235be570ff587826bad4915c935';
-const GATE_ALT = 'Z3dpaHVh'; // crypto.subtle 이 없는 환경(file:// 등) 대비
-
-async function gateOk(v) {
-  const s = (v || '').trim();
-  if (!s) return false;
-  if (window.crypto && crypto.subtle && window.isSecureContext) {
-    try {
-      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
-      return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('') === GATE_HASH;
-    } catch {}
-  }
-  try { return btoa(s) === GATE_ALT; } catch { return false; }
-}
-function gateUnlocked() { try { return localStorage.getItem(GATE_KEY) === GATE_HASH; } catch { return false; } }
-function gateOpen() { const el = $('gate'); if (el) el.classList.add('hidden'); }
-/* 스크립트가 읽히는 즉시 판단해 이미 푼 기기에는 잠금 화면이 비치지 않게 한다 */
-if (gateUnlocked()) gateOpen();
-
-function wireGate() {
-  const form = $('gateForm');
-  const input = $('gateInput');
-  const err = $('gateErr');
-  if (!form || !input) return;
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    if (await gateOk(input.value)) {
-      try { localStorage.setItem(GATE_KEY, GATE_HASH); } catch {}
-      err.classList.add('hidden');
-      gateOpen();
-    } else {
-      err.classList.remove('hidden');
-      input.value = '';
-      input.focus();
-    }
-  });
-  if (!gateUnlocked()) setTimeout(() => input.focus(), 60);
-}
-
-/* =====================================================================
    초기화
    ===================================================================== */
 async function init() {
   clearSensitiveLocalData();
-  wireGate();
   if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
     // 새 버전 적용은 서비스워커(activate 시 창 자동 새로고침)가 담당
     navigator.serviceWorker.register('sw.js').then((reg) => { swReg = reg; }).catch(() => {});

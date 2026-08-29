@@ -23,20 +23,6 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <!-- 공유 비밀번호 잠금: 링크와 함께 비밀번호를 받은 사람만 들어온다 -->
-  <div id="gate" class="gate" role="dialog" aria-modal="true" aria-label="Password">
-    <div class="gate__card">
-      <div class="gate__lock">🔒</div>
-      <h2 class="gate__title">비밀번호 · Password</h2>
-      <p class="gate__desc">1단계: 공유 비밀번호를 입력하세요.<br>2단계: 홈에서 회원 이메일 로그인을 진행합니다.<br>先输入公共密码，然后在首页进行会员邮箱登录。</p>
-      <form id="gateForm" class="gate__form" autocomplete="off">
-        <input id="gateInput" class="gate__input" type="password" autocapitalize="none" autocorrect="off" spellcheck="false" aria-label="Password" placeholder="••••••" />
-        <button id="gateBtn" class="btn btn--primary gate__btn" type="submit">확인 · Enter</button>
-      </form>
-      <p id="gateErr" class="gate__err hidden">비밀번호가 맞지 않습니다 · 密码不正确 · Mật khẩu không đúng · รหัสผ่านไม่ถูกต้อง</p>
-    </div>
-  </div>
-
   <!-- 첫 실행: 국가/언어(주석) 선택 -->
   <div id="langSplash" class="lang-splash hidden" role="dialog" aria-modal="true" aria-label="Select language">
     <div class="lang-splash__card">

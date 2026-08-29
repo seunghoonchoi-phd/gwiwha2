@@ -64,7 +64,7 @@ git push gw2 main
 
 ## 5. 손대지 말 것
 
-- 비밀번호 잠금은 소유자 지시로 걷어냈다. 어떤 형태든 다시 넣으려면 소유자가 정한 확인 문구를 먼저 받아야 한다. 문구 없이 잠금 화면·비밀번호 입력칸을 되살리지 않는다. 문구 평문은 저장소 안 어떤 파일에도 적지 않는다.
+- 비밀번호 잠금은 소유자 지시로 걷어냈다. 어떤 형태든 다시 넣으려면 소유자 휴대폰의 인증 앱 6자리 코드를 받아야 한다. 코드 없이 잠금 화면·비밀번호 입력칸을 되살리지 않는다. D: 클론의 pre-commit 훅이 이를 막는다. 회원 이메일 로그인은 이 규칙과 무관하다.
 - Supabase service-role key 는 브라우저 코드, `supabase-config.js`, GitHub 저장소에 절대 넣지 않는다. `supabase-config.js` 에는 URL 과 anon/publishable key 만 넣는다.
 - `questions.json`, `typing/data.js`, Service Worker precache 에 실제 문항/모범답안을 다시 넣지 않는다.
 - `.nojekyll` 은 GitHub Pages 설정이다. 지우지 않는다.
